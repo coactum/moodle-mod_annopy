@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="mod/annopy/db" VERSION="20230822" COMMENT="XMLDB file for Moodle mod/annopy"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+  >
+    <TABLES>
+      <TABLE NAME="annopy" COMMENT="Main table with all information of all plugin instances">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+          <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course the activity belongs to"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the instance"/>
+          <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description of the instance used by feature MOD_INTRO."/>
+          <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field used by feature MOD_INTRO."/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+          <KEY NAME="fk_course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        </INDEXES>
+      </TABLE>
+      <TABLE NAME="annopy_participants" COMMENT="Table with data of all participants of all plugin instances">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of the user"/>
+          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+          <KEY NAME="annopy" TYPE="foreign" FIELDS="annopy" REFTABLE="annopy" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="annopy" UNIQUE="false" FIELDS="annopy"/>
+        </INDEXES>
+      </TABLE>
+      <TABLE NAME="annopy_submissions" COMMENT="Table with all submissions in all plugin instances">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance"/>
+          <FIELD NAME="author" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the author of the submission"/>
+          <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content of the submission"/>
+          <FIELD NAME="currentversion" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="Version of submission"/>
+          <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Format of the submission"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+          <KEY NAME="annopy" TYPE="foreign" FIELDS="annopy" REFTABLE="annopy" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="annopy" UNIQUE="false" FIELDS="annopy"/>
+        </INDEXES>
+      </TABLE>
+      <TABLE NAME="annopy_annotations" COMMENT="Contains the annotations made in all plugin instances.">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation"/>
+          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance the annotation belongs to"/>
+          <FIELD NAME="submission" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the submission the annotation belongs to"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of user"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time annotation was created"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time annotation was last modified"/>
+          <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Type of the annotation"/>
+          <FIELD NAME="startcontainer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Start container of the annotation"/>
+          <FIELD NAME="endcontainer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="End container of the annotation"/>
+          <FIELD NAME="startoffset" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Start position of the annotation"/>
+          <FIELD NAME="endoffset" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="End position of the annotation"/>
+          <FIELD NAME="annotationstart" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Start of the annotation"/>
+          <FIELD NAME="annotationend" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="End of the annotation"/>
+          <FIELD NAME="exact" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Exact annotated text"/>
+          <FIELD NAME="prefix" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Prefix before the annotated text"/>
+          <FIELD NAME="suffix" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Suffix after the annotated text"/>
+          <FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Text of the annotation"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+          <KEY NAME="submission" TYPE="foreign" FIELDS="submission" REFTABLE="annopy_submissions" REFFIELDS="id"/>
+          <KEY NAME="annopy" TYPE="foreign" FIELDS="annopy" REFTABLE="annopy" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        </INDEXES>
+      </TABLE>
+
+      <TABLE NAME="annopy_style_templates" COMMENT="Contains all templates for annotation styles that can be used in plugin instances">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation style template"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style template was created"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style template was last modified"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation style template"/>
+          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation style template"/>
+          <FIELD NAME="defaulttype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If template is default template"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of the user that has created the annotation style template"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        </INDEXES>
+      </TABLE>
+
+      <TABLE NAME="annopy_annotationstyles" COMMENT="Contains the concrete annotation styles used by plugin instances">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation style"/>
+          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance where the annotation style is used"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style was created"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style was last modified"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation style"/>
+          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation style"/>
+          <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Position of the annotation style"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+          <KEY NAME="annopy" TYPE="foreign" FIELDS="annopy" REFTABLE="annopy" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="annopy" UNIQUE="false" FIELDS="annopy"/>
+        </INDEXES>
+      </TABLE>
+    </TABLES>
+  </XMLDB>
