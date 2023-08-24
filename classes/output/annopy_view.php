@@ -24,6 +24,7 @@
 namespace mod_annopy\output;
 
 use mod_annopy\local\submissionstats;
+use mod_annopy\local\helper;
 use renderable;
 use renderer_base;
 use templatable;
@@ -38,8 +39,8 @@ use stdClass;
  */
 class annopy_view implements renderable, templatable {
 
-    /** @var int */
-    protected $cmid;
+    /** @var object */
+    protected $cm;
     /** @var object */
     protected $course;
     /** @var object */
@@ -49,13 +50,13 @@ class annopy_view implements renderable, templatable {
 
     /**
      * Construct this renderable.
-     * @param int $cmid The course module id
+     * @param int $cm The course module
      * @param object $course The course
      * @param object $context The context
      * @param object $submission The submission
      */
-    public function __construct($cmid, $course, $context, $submission) {
-        $this->cmid = $cmid;
+    public function __construct($cm, $course, $context, $submission) {
+        $this->cm = $cm;
         $this->course = $course;
         $this->context = $context;
         $this->submission = $submission;
@@ -71,7 +72,7 @@ class annopy_view implements renderable, templatable {
         global $DB, $USER, $OUTPUT;
 
         $data = new stdClass();
-        $data->cmid = $this->cmid;
+        $data->cmid = $this->cm->id;
         $data->submission = $this->submission;
 
         if ($data->submission) {
@@ -88,9 +89,16 @@ class annopy_view implements renderable, templatable {
                 $data->submission->timecreated);
             $data->submission->canviewdetails = has_capability('mod/annopy:addsubmission', $this->context);
 
+            // Prepare annotations.
+            $select = "annopy = " . $this->cm->instance;
+            $annotationtypes = (array) $DB->get_records_select('annopy_annotationtypes', $select, null, 'priority ASC');
+            $data->submission = helper::prepare_annotations($this->cm, $this->course, $this->context, $data->submission,
+                get_string_manager(), $annotationtypes, true);
         }
 
         $data->canaddsubmission = has_capability('mod/annopy:addsubmission', $this->context);
+
+        $data->sesskey = sesskey();
         return $data;
     }
 }

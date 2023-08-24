@@ -90,6 +90,7 @@
     background-color: yellow;
     cursor: pointer;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
 .path-mod-annopy .hovered .annotated,
@@ -99,8 +100,8 @@
 
 .path-mod-annopy .annotated:hover,
 .path-mod-annopy .annotated_temp:hover,
-.path-mod-annopy .hovered,
-.path-mod-annopy .errortypeheader .hovered {
+.path-mod-annopy .textbackground.hovered,
+.path-mod-annopy .annotationtypeheader .hovered {
     background-color: lightblue;
 }
 
@@ -124,7 +125,7 @@
     width: 100%;
 }
 
-.path-mod-annopy-error_summary th {
+.path-mod-annopy-annotations_summary th {
     min-width: 135px;
 }
 

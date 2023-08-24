@@ -31,6 +31,9 @@ require_once(__DIR__.'/lib.php');
 // Course_module ID.
 $id = optional_param('id', 0, PARAM_INT);
 
+// Param with id of annotation that should be focused.
+$focusannotation = optional_param('focusannotation',  0, PARAM_INT); // ID of annotation.
+
 // Set the basic variables $course, $cm and $moduleinstance.
 if ($id) {
     [$course, $cm] = get_course_and_cm_from_cmid($id, 'annopy');
@@ -77,7 +80,9 @@ if (true) {
     $PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
 } */
 
-// $PAGE->requires->js_call_amd('mod_annopy/view', 'init', array('cmid' => $cm->id));
+$PAGE->requires->js_call_amd('mod_annopy/annotations', 'init',
+    array( 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,
+    'focusannotation' => $focusannotation));
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
@@ -108,7 +113,7 @@ echo groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/annopy/view.php?id=$i
 $submission = $DB->get_record('annopy_submissions', array('annopy' => $moduleinstance->id));
 
 // Render and output page.
-$page = new annopy_view($cm->id, $course, $context, $submission);
+$page = new annopy_view($cm, $course, $context, $submission);
 
 echo $OUTPUT->render($page);
 

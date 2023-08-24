@@ -61,11 +61,27 @@ $string['currentversion'] = 'Versionsnummer';
 $string['details'] = 'Details';
 $string['numwordsraw'] = '{$a->wordscount} Wörter mit {$a->charscount} Zeichen, einschließlich {$a->spacescount} Leerzeichen.';
 $string['created'] = 'vor {$a->years} Jahren, {$a->month} Monaten, {$a->days} Tagen und {$a->hours} Stunden';
+$string['nosubmission'] = 'Keine Einreichung';
+
+// Strings for annotations.
 $string['annotations'] = 'Annotationen';
 $string['toggleallannotations'] = 'Alle Annotation aus- / einklappen';
+$string['toggleannotation'] = 'Annotation aus- / einklappen';
+$string['hoverannotation'] = 'Annotation hervorheben';
+$string['annotationcreated'] = 'Erstellt am {$a}';
+$string['annotationmodified'] = 'Bearbeitet am {$a}';
+$string['editannotation'] = 'Bearbeiten';
+$string['deleteannotation'] = 'Löschen';
 $string['annotationsarefetched'] = 'Annotationen werden geladen';
 $string['reloadannotations'] = 'Annotationen neu laden';
-$string['nosubmission'] = 'Keine Einreichung';
+$string['annotationadded'] = 'Annotation hinzugefügt';
+$string['annotationedited'] = 'Annotation geändert';
+$string['annotationdeleted'] = 'Annotation gelöscht';
+$string['annotationinvalid'] = 'Annotation ungültig';
+$string['annotatedtextnotfound'] = 'Annotierter Text nicht gefunden';
+$string['annotatedtextinvalid'] = 'Der ursprünglich annotierte Text ist ungültig geworden. Die Markierung für diese Annotation muss deshalb neu gesetzt werden.';
+$string['deletedannotationtype'] = 'Gelöschter Stil';
+$string['annotationtypedeleted'] = 'Annotationsstil nicht vorhanden.';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Alle Benutzerdaten löschen';
@@ -86,13 +102,13 @@ $string['annopy:deleteannotation'] = 'Annotation löschen';
 $string['annopy:viewannotations'] = 'Annotationen ansehen';
 $string['annopy:viewannotationsevaluation'] = 'Annotationsauswertung ansehen';
 $string['annopy:viewmyannotationsummary'] = 'Zusammenfasung meiner Annotationen ansehen';
-$string['annopy:addannotationstyle'] = 'Annotationsstil hinzufügen';
-$string['annopy:editannotationstyle'] = 'Annotationsstil bearbeiten';
-$string['annopy:deleteannotationstyle'] = 'Annotationsstil löschen';
-$string['annopy:addannotationstyletemplate'] = 'Annotationsstilvorlage hinzufügen';
-$string['annopy:editannotationstyletemplate'] = 'Annotationsstilvorlage bearbeiten';
-$string['annopy:deleteannotationstyletemplate'] = 'Annotationsstilvorlage löschen';
-$string['annopy:managedefaultannotationstyletemplates'] = 'Standard Annotationsstil-Vorlagen verwalten';
+$string['annopy:addannotationtype'] = 'Annotationsstil hinzufügen';
+$string['annopy:editannotationtype'] = 'Annotationsstil bearbeiten';
+$string['annopy:deleteannotationtype'] = 'Annotationsstil löschen';
+$string['annopy:addannotationtypetemplate'] = 'Annotationsstilvorlage hinzufügen';
+$string['annopy:editannotationtypetemplate'] = 'Annotationsstilvorlage bearbeiten';
+$string['annopy:deleteannotationtypetemplate'] = 'Annotationsstilvorlage löschen';
+$string['annopy:managedefaultannotationtypetemplates'] = 'Standard Annotationsstil-Vorlagen verwalten';
 
 // Strings for the tasks.
 $string['task'] = 'Aufgabe';
@@ -111,6 +127,7 @@ $string['eventsubmissionupdated'] = 'Einreichung aktualisiert';
 $string['errfilloutfield'] = 'Bitte Feld ausfüllen';
 $string['incorrectcourseid'] = 'Inkorrekte Kurs-ID';
 $string['incorrectmodule'] = 'Inkorrekte Kurs-Modul-ID';
+$string['notallowedtodothis'] = 'Keine Berechtigung dies zu tun.';
 
 // Strings for the privacy api.
 /*

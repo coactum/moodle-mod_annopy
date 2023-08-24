@@ -172,7 +172,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:addannotationstyle' => array(
+    'mod/annopy:addannotationtype' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -183,7 +183,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:editannotationstyle' => array(
+    'mod/annopy:editannotationtype' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -194,7 +194,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:deleteannotationstyle' => array(
+    'mod/annopy:deleteannotationtype' => array(
         'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -205,7 +205,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:addannotationstyletemplate' => array(
+    'mod/annopy:addannotationtypetemplate' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -216,7 +216,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:editannotationstyletemplate' => array(
+    'mod/annopy:editannotationtypetemplate' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -227,7 +227,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:deleteannotationstyletemplate' => array(
+    'mod/annopy:deleteannotationtypetemplate' => array(
         'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -238,7 +238,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/annopy:managedefaultannotationstyletemplates' => array(
+    'mod/annopy:managedefaultannotationtypetemplates' => array(
         'riskbitmask' => RISK_XSS | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

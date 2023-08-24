@@ -67,6 +67,26 @@ $string['annotationsarefetched'] = 'Annotations being loaded';
 $string['reloadannotations'] = 'Reload annotations';
 $string['nosubmission'] = 'No submission';
 
+// Strings for annotations.
+$string['annotations'] = 'Annotations';
+$string['toggleallannotations'] = 'Toggle all annotations';
+$string['toggleannotation'] = 'Toggle annotation';
+$string['hoverannotation'] = 'Hover annotation';
+$string['annotationcreated'] = 'Created at {$a}';
+$string['annotationmodified'] = 'Modified at {$a}';
+$string['editannotation'] = 'Edit';
+$string['deleteannotation'] = 'Delete';
+$string['annotationsarefetched'] = 'Annotations being loaded';
+$string['reloadannotations'] = 'Reload annotations';
+$string['annotationadded'] = 'Annotation added';
+$string['annotationedited'] = 'Annotation edited';
+$string['annotationdeleted'] = 'Annotation deleted';
+$string['annotationinvalid'] = 'Annotation invalid';
+$string['annotatedtextnotfound'] = 'Annotated text not found';
+$string['annotatedtextinvalid'] = 'The originally annotated text has become invalid. The marking for this annotation must therefore be redone.';
+$string['deletedannotationtype'] = 'Deleted type';
+$string['annotationtypedeleted'] = 'annotation type does not exists.';
+
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Delete all user data';
 
@@ -86,13 +106,13 @@ $string['annopy:deleteannotation'] = 'Delete annotation';
 $string['annopy:viewannotations'] = 'View annotations';
 $string['annopy:viewannotationsevaluation'] = 'View annotations evaluation';
 $string['annopy:viewmyannotationsummary'] = 'View summary of my annotations';
-$string['annopy:addannotationstyle'] = 'Add annotation style';
-$string['annopy:editannotationstyle'] = 'Edit annotation style';
-$string['annopy:deleteannotationstyle'] = 'Delete annotation style';
-$string['annopy:addannotationstyletemplate'] = 'Add annotation style template';
-$string['annopy:editannotationstyletemplate'] = 'Edit annotation style template';
-$string['annopy:deleteannotationstyletemplate'] = 'Delete annotation style template';
-$string['annopy:managedefaultannotationstyletemplates'] = 'Manage default annotation style templates';
+$string['annopy:addannotationtype'] = 'Add annotation type';
+$string['annopy:editannotationtype'] = 'Edit annotation type';
+$string['annopy:deleteannotationtype'] = 'Delete annotation type';
+$string['annopy:addannotationtypetemplate'] = 'Add annotation type template';
+$string['annopy:editannotationtypetemplate'] = 'Edit annotation type template';
+$string['annopy:deleteannotationtypetemplate'] = 'Delete annotation type template';
+$string['annopy:managedefaultannotationtypetemplates'] = 'Manage default annotation type templates';
 
 // Strings for the tasks.
 $string['task'] = 'Task';
@@ -111,6 +131,7 @@ $string['eventsubmissionupdated'] = 'Submission updated';
 $string['errfilloutfield'] = 'Please fill out this field';
 $string['incorrectcourseid'] = 'Course ID is incorrect';
 $string['incorrectmodule'] = 'Course Module ID is incorrect';
+$string['notallowedtodothis'] = 'No permissions to do this.';
 
 // Strings for the privacy api.
 /*

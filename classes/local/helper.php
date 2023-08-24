@@ -23,6 +23,9 @@
  */
 namespace mod_annopy\local;
 
+use mod_annopy_annotation_form;
+use moodle_url;
+
 /**
  * Utility class for the module.
  *
@@ -63,5 +66,125 @@ class helper {
             $editoroptions,
             $attachmentoptions
         );
+    }
+
+    /**
+     * Returns annotation types array for select form.
+     *
+     * @param stdClass $annotationtypes The annotation types.
+     * @return array action
+     */
+    public static function get_annotationtypes_for_form($annotationtypes) {
+        $types = array();
+        $strmanager = get_string_manager();
+        foreach ($annotationtypes as $key => $type) {
+            if ($strmanager->string_exists($type->name, 'mod_annopy')) {
+                $types[$key] = get_string($type->name, 'mod_annopy');
+            } else {
+                $types[$key] = $type->name;
+            }
+        }
+
+        return $types;
+    }
+
+    /**
+     * Returns all annotation type templates.
+     *
+     * @return array action
+     */
+    public static function get_all_annotationtype_templates() {
+        global $USER, $DB;
+
+        $select = "defaulttype = 1";
+        $select .= " OR userid = " . $USER->id;
+
+        $annotationtypetemplates = (array) $DB->get_records_select('annopy_annotationtype_templates', $select);
+
+        return $annotationtypetemplates;
+    }
+
+    /**
+     * Prepare the annotations for the submission.
+     *
+     * @param object $cm The course module.
+     * @param object $course The course.
+     * @param object $context The context.
+     * @param object $submission The submission to be processed.
+     * @param object $strmanager The moodle strmanager object needed to check annotation types in the annotation form.
+     * @param object $annotationtypes The annotation types for the module.
+     * @param object $annotationmode If annotationmode is activated.
+     * @return object The submission with its annotations.
+     */
+    public static function prepare_annotations($cm, $course, $context, $submission, $strmanager, $annotationtypes,
+        $annotationmode) {
+
+        global $DB, $USER, $CFG, $OUTPUT;
+
+        // Get annotations for submission.
+        $submission->annotations = array_values($DB->get_records('annopy_annotations',
+            array('annopy' => $cm->instance, 'submission' => $submission->id)));
+
+        foreach ($submission->annotations as $key => $annotation) {
+
+            // If annotation type does not exist.
+            if (!$DB->record_exists('annopy_annotationtypes', array('id' => $annotation->type))) {
+                $submission->annotations[$key]->color = 'FFFF00';
+                $submission->annotations[$key]->type = get_string('deletedannotationtype', 'mod_annopy');
+            } else {
+                $submission->annotations[$key]->color = $annotationtypes[$annotation->type]->color;
+
+                if ($strmanager->string_exists($annotationtypes[$annotation->type]->name, 'mod_annopy')) {
+                    $submission->annotations[$key]->type = get_string($annotationtypes[$annotation->type]->name, 'mod_annopy');
+                } else {
+                    $submission->annotations[$key]->type = $annotationtypes[$annotation->type]->name;
+                }
+            }
+
+            if (has_capability('mod/annopy:editannotation', $context) && $annotation->userid == $USER->id) {
+                $submission->annotations[$key]->canbeedited = true;
+            } else {
+                $submission->annotations[$key]->canbeedited = false;
+            }
+
+            if ($annotationmode) {
+                // Add annotater images to annotations.
+                $annotater = $DB->get_record('user', array('id' => $annotation->userid));
+                $annotaterimage = $OUTPUT->user_picture($annotater,
+                    array('courseid' => $course->id, 'link' => true, 'includefullname' => true, 'size' => 20));
+                $submission->annotations[$key]->userpicturestr = $annotaterimage;
+
+            } else {
+                $submission->annotationform = false;
+            }
+        }
+
+        // Sort annotations and find its position.
+        usort($submission->annotations, function ($a, $b) {
+            if ($a->annotationstart === $b->annotationstart) {
+                return $a->annotationend <=> $b->annotationend;
+            }
+
+            return $a->annotationstart <=> $b->annotationstart;
+        });
+
+        $pos = 1;
+        foreach ($submission->annotations as $key => $annotation) {
+            $submission->annotations[$key]->position = $pos;
+            $pos += 1;
+        }
+
+        if ($annotationmode) {
+            // Add annotation form.
+            require_once($CFG->dirroot . '/mod/annopy/annotation_form.php');
+            $mform = new mod_annopy_annotation_form(new moodle_url('/mod/annopy/annotations.php', array('id' => $cm->id)),
+                array('types' => self::get_annotationtypes_for_form($annotationtypes)));
+            // Set default data.
+            $mform->set_data(array('id' => $cm->id, 'submission' => $submission->id));
+
+            $submission->annotationform = $mform->render();
+        }
+
+        return $submission;
     }
 }

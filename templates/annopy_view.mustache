@@ -84,9 +84,9 @@
                     <div class="annotationarea annotationarea-{{id}} annotationareawidth submissionbackground">
                         {{#annotations}}
                             <div id="annotation-box-{{id}}" class="annotation-box annotation-box-{{id}} textbackground" tabindex="{{position}}">
-                                <div class="annotationstyleheader">
+                                <div class="annotationtypeheader">
                                     <span style="border-left: 10px solid #{{color}}; padding-left: 5px;"> </span>
-                                    <strong class="annotationstyle">{{style}}</strong>
+                                    <strong class="annotationtype">{{type}}</strong>
                                     <button class="btn btn-secondary annopy-btn-round-small float-right" data-toggle="collapse" data-target=".collapseAnnotation{{id}}" aria-expanded="false" aria-controls="collapseAnnotation{{id}}" title="{{#str}}toggleannotation, mod_annopy{{/str}}"><i class="fa fa-lg fa-caret-down"></i></button>
                                     <a id="hoverannotation-{{id}}" class="hoverannotation hoverannotation-{{id}} btn btn-secondary annopy-btn-round-small float-right" aria-expanded="false" title="{{#str}}hoverannotation, mod_annopy{{/str}}"><i class="fa fa-lg fa-crosshairs"></i></a>
                                 </div>

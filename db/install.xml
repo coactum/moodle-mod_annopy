@@ -86,15 +86,15 @@
         </INDEXES>
       </TABLE>
 
-      <TABLE NAME="annopy_style_templates" COMMENT="Contains all templates for annotation styles that can be used in plugin instances">
+      <TABLE NAME="annopy_annotationtype_templates" COMMENT="Contains all templates for annotation types that can be used in plugin instances">
         <FIELDS>
-          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation style template"/>
-          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style template was created"/>
-          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style template was last modified"/>
-          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation style template"/>
-          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation style template"/>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation type template"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation type template was created"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation type template was last modified"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation type template"/>
+          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation type template"/>
           <FIELD NAME="defaulttype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If template is default template"/>
-          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of the user that has created the annotation style template"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of the user that has created the annotation type template"/>
         </FIELDS>
         <KEYS>
           <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -104,15 +104,15 @@
         </INDEXES>
       </TABLE>
 
-      <TABLE NAME="annopy_annotationstyles" COMMENT="Contains the concrete annotation styles used by plugin instances">
+      <TABLE NAME="annopy_annotationtypes" COMMENT="Contains the concrete annotation types used by plugin instances">
         <FIELDS>
-          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation style"/>
-          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance where the annotation style is used"/>
-          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style was created"/>
-          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation style was last modified"/>
-          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation style"/>
-          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation style"/>
-          <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Position of the annotation style"/>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation type"/>
+          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance where the annotation type is used"/>
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation type was created"/>
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation type was last modified"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the annotation type"/>
+          <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Color of the annotation type"/>
+          <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Position of the annotation type"/>
         </FIELDS>
         <KEYS>
           <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
