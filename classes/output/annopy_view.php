@@ -23,6 +23,7 @@
  */
 namespace mod_annopy\output;
 
+use mod_annopy\local\submissionstats;
 use renderable;
 use renderer_base;
 use templatable;
@@ -39,13 +40,25 @@ class annopy_view implements renderable, templatable {
 
     /** @var int */
     protected $cmid;
+    /** @var object */
+    protected $course;
+    /** @var object */
+    protected $context;
+    /** @var object */
+    protected $submission;
 
     /**
      * Construct this renderable.
      * @param int $cmid The course module id
+     * @param object $course The course
+     * @param object $context The context
+     * @param object $submission The submission
      */
-    public function __construct($cmid) {
+    public function __construct($cmid, $course, $context, $submission) {
         $this->cmid = $cmid;
+        $this->course = $course;
+        $this->context = $context;
+        $this->submission = $submission;
     }
 
     /**
@@ -55,8 +68,29 @@ class annopy_view implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output) {
+        global $DB, $USER, $OUTPUT;
+
         $data = new stdClass();
         $data->cmid = $this->cmid;
+        $data->submission = $this->submission;
+
+        if ($data->submission) {
+            // If submission can be edited.
+            $data->submission->canbeedited = has_capability('mod/annopy:editsubmission', $this->context);
+
+            // Set submission user.
+            $data->submission->user = $DB->get_record('user', array('id' => $data->submission->author));
+            $data->submission->user->userpicture = $OUTPUT->user_picture($data->submission->user,
+                array('courseid' => $this->course->id, 'link' => true, 'includefullname' => true, 'size' => 25));
+
+            // Submission stats.
+            $data->submission->stats = submissionstats::get_submission_stats($data->submission->content,
+                $data->submission->timecreated);
+            $data->submission->canviewdetails = has_capability('mod/annopy:addsubmission', $this->context);
+
+        }
+
+        $data->canaddsubmission = has_capability('mod/annopy:addsubmission', $this->context);
         return $data;
     }
 }

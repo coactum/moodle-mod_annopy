@@ -38,9 +38,34 @@ $string['pluginadministration'] = 'Administration der AnnoPy-Instanz';
 $string['modulenameplural'] = 'AnnoPys';
 $string['nonewmodules'] = 'Keine neuen Instanzen';
 
+// Strings for submit_form.php and submit.php.
+$string['editsubmissionnotpossible'] = 'Bearbeiten der Einreichung fehlgeschlagen';
+$string['addsubmission'] = 'Einreichung anlegen';
+$string['editsubmission'] = 'Einreichung bearbeiten';
+$string['title'] = 'Titel';
+$string['submissioncontent'] = 'Inhalt der Einreichung';
+$string['submissioncreated'] = 'Einreichung angelegt';
+$string['submissionnotcreated'] = 'Einreichung konnte nicht angelegt werden';
+$string['submissionmodified'] = 'Einreichung aktualisiert';
+$string['submissionnotmodified'] = 'Einreichung konnte nicht aktualisiert werden';
+$string['submissionfaileddoubled'] = 'Einreichung konnte nicht angelegt werden da sie bereits existiert.';
+
 // Strings for the view page.
 $string['viewallannopys'] = 'Alle AnnoPy-Instanzen im Kurs ansehen';
 $string['overview'] = 'Übersicht';
+$string['submission'] = 'Einreichung';
+$string['author'] = 'Autor';
+$string['timecreated'] = 'Zeitpunkt der Erstellung';
+$string['lastedited'] = 'Zuletzt bearbeitet';
+$string['currentversion'] = 'Versionsnummer';
+$string['details'] = 'Details';
+$string['numwordsraw'] = '{$a->wordscount} Wörter mit {$a->charscount} Zeichen, einschließlich {$a->spacescount} Leerzeichen.';
+$string['created'] = 'vor {$a->years} Jahren, {$a->month} Monaten, {$a->days} Tagen und {$a->hours} Stunden';
+$string['annotations'] = 'Annotationen';
+$string['toggleallannotations'] = 'Alle Annotation aus- / einklappen';
+$string['annotationsarefetched'] = 'Annotationen werden geladen';
+$string['reloadannotations'] = 'Annotationen neu laden';
+$string['nosubmission'] = 'Keine Einreichung';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Alle Benutzerdaten löschen';
@@ -78,8 +103,14 @@ $string['task'] = 'Aufgabe';
 
 // Strings for the admin settings.
 
-// Strings for the events.
-$string['eventthingcreated'] = 'AnnoPy thing angelegt';
+// Strings for events.
+$string['eventsubmissioncreated'] = 'Einreichung abgegeben';
+$string['eventsubmissionupdated'] = 'Einreichung aktualisiert';
+
+// Strings for error messages.
+$string['errfilloutfield'] = 'Bitte Feld ausfüllen';
+$string['incorrectcourseid'] = 'Inkorrekte Kurs-ID';
+$string['incorrectmodule'] = 'Inkorrekte Kurs-Modul-ID';
 
 // Strings for the privacy api.
 /*

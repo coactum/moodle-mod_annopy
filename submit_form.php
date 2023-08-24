@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * File containing the class definition for the annopy example form.
+ * File containing the class definition for the submit form for the module.
  *
  * @package     mod_annopy
  * @copyright   2023 coactum GmbH
@@ -28,16 +28,16 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 /**
- * Form for the example to annopy.
+ * Form for the submissions.
  *
  * @package   mod_annopy
  * @copyright 2023 coactum GmbH
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL Juv3 or later
  */
-class mod_annopy_example_form extends moodleform {
+class mod_annopy_submit_form extends moodleform {
 
     /**
-     * Define the form - called by parent constructor.
+     * Define the form - called by parent constructor
      */
     public function definition() {
 
@@ -48,17 +48,27 @@ class mod_annopy_example_form extends moodleform {
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'user', null);
-        $mform->setType('user', PARAM_INT);
+        $mform->addElement('hidden', 'group', null);
+        $mform->setType('group', PARAM_INT);
 
-        // $mform->addElement('text', 'username', get_string('annopyusername', 'mod_annopy'));
-        // $mform->addHelpButton('username', 'annopyusername', 'mod_annopy');
-        // $mform->setType('username', PARAM_TEXT);
-        // $mform->addRule('username', null, 'required', null, 'client');
+        $mform->addElement('hidden', 'userid', null);
+        $mform->setType('userid', PARAM_INT);
 
-        // $mform->addElement('static', 'signupforannopy', get_string('noannopyyet', 'mod_annopy'),
-        //     '<a class="btn btn-secondary" target="_blank" href="' . get_config('annopy', 'remoteserver') . '/users/sign_up"' . '">' .
-        //     get_string('registerforannopy', 'mod_annopy') . '</a>');
+        $mform->addElement('hidden', 'submissionid', null);
+        $mform->setType('submissionid', PARAM_INT);
+
+        $mform->addElement('text', 'title', get_string('title', 'mod_annopy'), array('size' => '64'));
+
+        $mform->setType('title', PARAM_TEXT);
+
+        $mform->addRule('title', null, 'required', null, 'client');
+        $mform->addRule('title', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+
+        $mform->addElement('editor', 'submission_editor', get_string('submissioncontent', 'mod_annopy'),
+            null, $this->_customdata['editoroptions']);
+
+        $mform->setType('submission_editor', PARAM_RAW);
+        $mform->addRule('submission_editor', get_string('errfilloutfield', 'mod_annopy'), 'required', 'client');
 
         $this->add_action_buttons();
     }

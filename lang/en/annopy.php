@@ -38,9 +38,34 @@ $string['pluginadministration'] = 'Administration of AnnoPy';
 $string['modulenameplural'] = 'AnnoPys';
 $string['nonewmodules'] = 'No new modules';
 
+// Strings for submit_form.php and submit.php.
+$string['editsubmissionnotpossible'] = 'Editing submission failed';
+$string['addsubmission'] = 'Add submission';
+$string['editsubmission'] = 'Edit submission';
+$string['title'] = 'Title';
+$string['submissioncontent'] = 'Content of the submission';
+$string['submissioncreated'] = 'Submission created';
+$string['submissionnotcreated'] = 'Submission could not be created';
+$string['submissionmodified'] = 'Submission updated';
+$string['submissionnotmodified'] = 'Submission could not be updated';
+$string['submissionfaileddoubled'] = 'Submission could not be created because it already exists';
+
 // Strings for the view page.
 $string['viewallannopys'] = 'View all AnnoPy instances in the course';
 $string['overview'] = 'Overview';
+$string['submission'] = 'Submission';
+$string['author'] = 'Author';
+$string['timecreated'] = 'Time created';
+$string['lastedited'] = 'Last edited';
+$string['currentversion'] = 'Current version';
+$string['details'] = 'Details';
+$string['numwordsraw'] = '{$a->wordscount} text words using {$a->charscount} characters, including {$a->spacescount} spaces.';
+$string['created'] = '{$a->years} years, {$a->month} months, {$a->days} days and {$a->hours} hours ago';
+$string['annotations'] = 'Annotations';
+$string['toggleallannotations'] = 'Toggle all annotations';
+$string['annotationsarefetched'] = 'Annotations being loaded';
+$string['reloadannotations'] = 'Reload annotations';
+$string['nosubmission'] = 'No submission';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Delete all user data';
@@ -78,8 +103,14 @@ $string['task'] = 'Task';
 
 // Strings for the admin settings.
 
-// Strings for the events.
-$string['eventthingcreated'] = 'AnnoPy thing created';
+// Strings for events.
+$string['eventsubmissioncreated'] = 'Submission created';
+$string['eventsubmissionupdated'] = 'Submission updated';
+
+// Strings for error messages.
+$string['errfilloutfield'] = 'Please fill out this field';
+$string['incorrectcourseid'] = 'Course ID is incorrect';
+$string['incorrectmodule'] = 'Course Module ID is incorrect';
 
 // Strings for the privacy api.
 /*

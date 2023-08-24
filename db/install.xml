@@ -41,6 +41,7 @@
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
           <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance"/>
           <FIELD NAME="author" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the author of the submission"/>
+          <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Title of the submission"/>
           <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content of the submission"/>
           <FIELD NAME="currentversion" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="Version of submission"/>
           <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Format of the submission"/>

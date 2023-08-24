@@ -866,55 +866,32 @@ function annopy_get_file_info($browser, $areas, $course, $cm, $context, $fileare
  * @return bool false if file not found, does not return if found - just sends the file.
  */
 function annopy_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = array()) {
-    global $DB, $CFG;
+    global $DB;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
-        send_file_not_found();
-    }
-
-    require_login($course, true, $cm);
-
-    if (! $course->visible && ! has_capability('moodle/course:viewhiddencourses', $context)) {
         return false;
     }
 
-    $areas = annopy_get_file_areas($course, $cm, $context);
+    require_course_login($course, true, $cm);
 
-    // Filearea must contain a real area.
-    if (!isset($areas[$filearea])) {
+    if (!$course->visible && !has_capability('moodle/course:viewhiddencourses', $context)) {
         return false;
     }
 
-    /* // Args[0] should be the entry id.
-    $entryid = intval(array_shift($args));
-    $entry = $DB->get_record('annopy_entries', array(
-        'id' => $entryid
-    ), 'id, userid', MUST_EXIST);
+    // Args[0] should be the submission id.
+    $submissionid = intval(array_shift($args));
 
-    $canmanage = has_capability('mod/annopy:manageentries', $context);
-    if (! $canmanage && ! has_capability('mod/annopy:addentries', $context)) {
-        // Even if it is your own entry.
-        return false;
-    }
-
-    // Students can only see their own entry.
-    if (! $canmanage && $USER->id !== $entry->userid) {
-        return false;
-    }
-
-    if ($filearea !== 'entry' && $filearea !== 'feedback') {
+    if ($filearea !== 'submission') {
         return false;
     }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/mod_annopy/$filearea/$entryid/$relativepath";
+    $fullpath = "/$context->id/mod_annopy/$filearea/$submissionid/$relativepath";
     $file = $fs->get_file_by_hash(sha1($fullpath));
 
     // Finally send the file.
-    send_stored_file($file, null, 0, $forcedownload, $options); */
-
-    send_file_not_found();
+    send_stored_file($file, null, 0, $forcedownload, $options);
 }
 
 /**
