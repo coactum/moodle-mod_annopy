@@ -74,11 +74,6 @@ $modulename = format_string($moduleinstance->name, true, array(
 $PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
 
 $PAGE->navbar->add(get_string("overview", "annopy"));
-/* $PAGE->navbar->add(get_string("overview", "annopy"), new moodle_url('/mod/annopy/view.php', array('id' => $cm->id)));
-if (true) {
-    $PAGE->navbar->add(get_string("overview", "annopy"));
-    $PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
-} */
 
 $PAGE->requires->js_call_amd('mod_annopy/annotations', 'init',
     array( 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,

@@ -91,7 +91,7 @@ if ($getannotations) {
     die;
 }
 
-require_capability('mod/annopy:addannotation', $context);
+require_capability('mod/annopy:viewannotations', $context);
 
 // Header.
 $PAGE->set_url('/mod/annopy/annotations.php', array('id' => $id));

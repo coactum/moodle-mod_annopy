@@ -86,7 +86,7 @@
         </INDEXES>
       </TABLE>
 
-      <TABLE NAME="annopy_annotationtype_templates" COMMENT="Contains all templates for annotation types that can be used in plugin instances">
+      <TABLE NAME="annopy_atype_templates" COMMENT="Contains all templates for annotation types that can be used in plugin instances">
         <FIELDS>
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Id of the annotation type template"/>
           <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the annotation type template was created"/>

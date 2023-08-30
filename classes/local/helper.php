@@ -99,7 +99,7 @@ class helper {
         $select = "defaulttype = 1";
         $select .= " OR userid = " . $USER->id;
 
-        $annotationtypetemplates = (array) $DB->get_records_select('annopy_annotationtype_templates', $select);
+        $annotationtypetemplates = (array) $DB->get_records_select('annopy_atype_templates', $select);
 
         return $annotationtypetemplates;
     }

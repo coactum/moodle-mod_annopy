@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_annopy';
-$plugin->release = '0.2.0';
-$plugin->version = 2023082401;
+$plugin->release = '0.3.0';
+$plugin->version = 2023083000;
 $plugin->requires = 2020061507;
 $plugin->maturity = MATURITY_ALPHA;

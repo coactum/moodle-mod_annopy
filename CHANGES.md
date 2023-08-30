@@ -1,5 +1,10 @@
 ## Changelog ##
 
+- [0.3]:
+    - Teachers can now add, edit and delete annotation type templates and annotation types for the concrete module instance.
+    - Added a first version of the annotations summary.
+    - Renamed the table annopy_annotationtype_templates to annopy_atype_templates.
+
 - [0.2]:
     - Users can now add, edit and delete annotations in submissions.
 

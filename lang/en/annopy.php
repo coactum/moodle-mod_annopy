@@ -61,10 +61,6 @@ $string['currentversion'] = 'Current version';
 $string['details'] = 'Details';
 $string['numwordsraw'] = '{$a->wordscount} text words using {$a->charscount} characters, including {$a->spacescount} spaces.';
 $string['created'] = '{$a->years} years, {$a->month} months, {$a->days} days and {$a->hours} hours ago';
-$string['annotations'] = 'Annotations';
-$string['toggleallannotations'] = 'Toggle all annotations';
-$string['annotationsarefetched'] = 'Annotations being loaded';
-$string['reloadannotations'] = 'Reload annotations';
 $string['nosubmission'] = 'No submission';
 
 // Strings for annotations.
@@ -85,7 +81,50 @@ $string['annotationinvalid'] = 'Annotation invalid';
 $string['annotatedtextnotfound'] = 'Annotated text not found';
 $string['annotatedtextinvalid'] = 'The originally annotated text has become invalid. The marking for this annotation must therefore be redone.';
 $string['deletedannotationtype'] = 'Deleted type';
-$string['annotationtypedeleted'] = 'annotation type does not exists.';
+$string['annotationtypedeleted'] = 'Annotation type does not exists.';
+
+// Strings for annotations_summary and annotationtypes_form.
+$string['annotationssummary'] = 'Annotations summary';
+$string['participant'] = 'Participant';
+$string['backtooverview'] = 'Back to overview';
+$string['addannotationtype'] = 'Add annotation type';
+$string['annotationtypeadded'] = 'Annotation type added';
+$string['editannotationtype'] = 'Edit annotation type';
+$string['annotationtypeedited'] = 'Annotation type edited';
+$string['editannotationtypetemplate'] = 'Edit template';
+$string['annotationtypecantbeedited'] = 'Annotation type could not be changed';
+$string['deleteannotationtype'] = 'Delete annotation type';
+$string['annotationtypedeleted'] = 'Annotation type deleted';
+$string['deleteannotationtypetemplate'] = 'Delete template';
+$string['deleteannotationtypetemplateconfirm'] = 'Should this annotation type template really be deleted? This deletes the template for the entire system so that it can no longer be used as a concrete annotation type in new AnnoPys. This action cannot be undone!';
+$string['annotationtypeinvalid'] = 'Annotation type invalid';
+$string['annopyannotationtypes'] = 'AnnoPy annotation types';
+$string['annotationtypetemplates'] = 'Annotation type templates';
+$string['annotationtypes'] = 'Annotation types';
+$string['template'] = 'Template';
+$string['addtoannopy'] = 'Add to AnnoPy';
+$string['switchtotemplatetypes'] = 'Switch to the annotation type templates';
+$string['switchtoannopytypes'] = 'Switch to the annotation types for the AnnoPy';
+$string['notemplatetypes'] = 'No annotation type templates available';
+$string['movefor'] = 'Display more in front';
+$string['moveback'] = 'Display further back';
+$string['prioritychanged'] = 'Order changed';
+$string['prioritynotchanged'] = 'Order could not be changed';
+$string['annotationcolor'] = 'Color of the annotation type';
+$string['standardtype'] = 'Standard annotation type';
+$string['manualtype'] = 'Manual annotation type';
+$string['standard'] = 'Standard';
+$string['custom'] = 'Custom';
+$string['type'] = 'Type';
+$string['color'] = 'Color';
+$string['errnohexcolor'] = 'No hexadecimal value for color.';
+$string['warningeditdefaultannotationtypetemplate'] = 'WARNING: This will change the annotation type template system-wide. When creating new AnnoPys, the changed template will then be available for selecting the concrete AnnoPy annotation types.';
+$string['changetemplate'] = 'Changing the name or color of the annotation type only affects the template and therefore only takes effect when new AnnoPys are created. The annotation types in existing AnnoPys are not affected by these changes.';
+$string['explanationtypename'] = 'Name';
+$string['explanationtypename_help'] = 'The name of the annotation type. Will not be translated.';
+$string['explanationhexcolor'] = 'Color';
+$string['explanationhexcolor_help'] = 'The color of the annotation type as hexadecimal value. This consists of exactly 6 characters (A-F as well as 0-9) and represents a color. If the color is selected here the value is entered automatically, alternatively the hex value can also be entered manually. You can find out the hexadecimal value of any color, for example, at <a href="https://www.w3schools.com/colors/colors_picker.asp" target="_blank">https://www.w3schools.com/colors/colors_picker.asp</a>.';
+$string['explanationstandardtype'] = 'Here you can select whether the annotation type should be a default type. In this case teachers can select it as annotation type that can be used in their AnnoPys. Otherwise, only you can add this annotation type to your AnnoPys.';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Delete all user data';
