@@ -62,6 +62,7 @@ $string['details'] = 'Details';
 $string['numwordsraw'] = '{$a->wordscount} text words using {$a->charscount} characters, including {$a->spacescount} spaces.';
 $string['created'] = '{$a->years} years, {$a->month} months, {$a->days} days and {$a->hours} hours ago';
 $string['nosubmission'] = 'No submission';
+$string['allannotations'] = 'All annotations';
 
 // Strings for annotations.
 $string['annotations'] = 'Annotations';
@@ -125,6 +126,7 @@ $string['explanationtypename_help'] = 'The name of the annotation type. Will not
 $string['explanationhexcolor'] = 'Color';
 $string['explanationhexcolor_help'] = 'The color of the annotation type as hexadecimal value. This consists of exactly 6 characters (A-F as well as 0-9) and represents a color. If the color is selected here the value is entered automatically, alternatively the hex value can also be entered manually. You can find out the hexadecimal value of any color, for example, at <a href="https://www.w3schools.com/colors/colors_picker.asp" target="_blank">https://www.w3schools.com/colors/colors_picker.asp</a>.';
 $string['explanationstandardtype'] = 'Here you can select whether the annotation type should be a default type. In this case teachers can select it as annotation type that can be used in their AnnoPys. Otherwise, only you can add this annotation type to your AnnoPys.';
+$string['viewannotationsofuser'] = 'View annotations of the user';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Delete all user data';
@@ -171,6 +173,7 @@ $string['errfilloutfield'] = 'Please fill out this field';
 $string['incorrectcourseid'] = 'Course ID is incorrect';
 $string['incorrectmodule'] = 'Course Module ID is incorrect';
 $string['notallowedtodothis'] = 'No permissions to do this.';
+$string['alreadyannotated'] = 'The text can no longer be edited because participants have already annotated it.';
 
 // Strings for the privacy api.
 /*

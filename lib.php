@@ -77,16 +77,6 @@ function annopy_supports($feature) {
 function annopy_add_instance($moduleinstance, $mform = null) {
     global $DB;
 
-    // Handle access time for grading.
-    /* if (empty($moduleinstance->assessed)) {
-        $moduleinstance->assessed = 0;
-    }
-
-    if (empty($moduleinstance->ratingtime) || empty($moduleinstance->assessed)) {
-        $moduleinstance->assesstimestart = 0;
-        $moduleinstance->assesstimefinish = 0;
-    } */
-
     $moduleinstance->timecreated = time();
 
     $moduleinstance->id = $DB->insert_record('annopy', $moduleinstance);
@@ -98,9 +88,23 @@ function annopy_add_instance($moduleinstance, $mform = null) {
     if (! empty($moduleinstance->completionexpected)) {
         \core_completion\api::update_completion_date_event($moduleinstance->coursemodule,
             'annopy', $moduleinstance->id, $moduleinstance->completionexpected);
-    }
+    }*/
 
-    annopy_grade_item_update($moduleinstance); */
+    if (isset($moduleinstance->annotationtypes) && !empty($moduleinstance->annotationtypes)) {
+        // Add annotation types for the module instance.
+        $priority = 1;
+        foreach ($moduleinstance->annotationtypes as $id => $checked) {
+            if ($checked) {
+                $type = $DB->get_record('annopy_atype_templates', array('id' => $id));
+                $type->annopy = $moduleinstance->id;
+                $type->priority = $priority;
+
+                $priority += 1;
+
+                $DB->insert_record('annopy_annotationtypes', $type);
+            }
+        }
+    }
 
     return $moduleinstance->id;
 }
@@ -120,41 +124,6 @@ function annopy_update_instance($moduleinstance, $mform = null) {
 
     $moduleinstance->timemodified = time();
     $moduleinstance->id = $moduleinstance->instance;
-
-    /* if (empty($moduleinstance->assessed)) {
-        $moduleinstance->assessed = 0;
-    }
-
-    if (empty($moduleinstance->ratingtime) || empty($moduleinstance->assessed)) {
-        $moduleinstance->assesstimestart = 0;
-        $moduleinstance->assesstimefinish = 0;
-    }
-
-    if (empty($moduleinstance->notification)) {
-        $moduleinstance->notification = 0;
-    }
-
-    // If the aggregation type or scale (i.e. max grade) changes then recalculate the grades for the entire moduleinstance
-    // if scale changes - do we need to recheck the ratings, if ratings higher than scale how do we want to respond?
-    // for count and sum aggregation types the grade we check to make sure they do not exceed the scale (i.e. max score)
-    // when calculating the grade.
-    $oldmoduleinstance = $DB->get_record('annopy', array('id' => $moduleinstance->id));
-
-    $updategrades = false;
-
-    if ($oldmoduleinstance->assessed <> $moduleinstance->assessed) {
-        // Whether this moduleinstance is rated.
-        $updategrades = true;
-    }
-
-    if ($oldmoduleinstance->scale <> $moduleinstance->scale) {
-        // The scale currently in use.
-        $updategrades = true;
-    }
-
-    if ($updategrades) {
-        annopy_update_grades($moduleinstance); // Recalculate grades for the moduleinstance.
-    } */
 
     $DB->update_record('annopy', $moduleinstance);
 
@@ -195,22 +164,23 @@ function annopy_delete_instance($id) {
         return false;
     }
 
-    /*
     $context = context_module::instance($cm->id);
 
     // Delete files.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id);
 
-    // Update completion for calendar events.
-    \core_completion\api::update_completion_date_event($cm->id, 'annopy', $annopy->id, null);
+    /* // Update completion for calendar events.
+     \core_completion\api::update_completion_date_event($cm->id, 'annopy', $annopy->id, null); */
 
-    // Delete grades.
-    annopy_grade_item_delete($annopy);
-    */
+    // Delete submission.
+    $DB->delete_records("annopy_submissions", array("annopy" => $annopy->id));
 
-    // Delete other db tables.
-    // ...
+    // Delete annotations.
+    $DB->delete_records("annopy_annotations", array("annopy" => $annopy->id));
+
+    // Delete annotation types for the module instance.
+    $DB->delete_records("annopy_annotationtypes", array("annopy" => $annopy->id));
 
     // Delete annopy, else return false.
     if (!$DB->delete_records("annopy", array("id" => $annopy->id))) {
@@ -219,7 +189,6 @@ function annopy_delete_instance($id) {
 
     return true;
 }
-
 
 /**
  * Returns a small object with summary information about what a

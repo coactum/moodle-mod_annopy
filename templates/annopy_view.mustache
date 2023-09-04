@@ -32,6 +32,10 @@
 
     <h3>{{#str}}overview, mod_annopy{{/str}}</h3>
 
+    {{#submission.totalannotationscount}}{{#caneditsubmission}}
+        <div class="alert alert-warning alert-block fade in" role="alert"><button type="button" class="close" data-dismiss="alert">×</button>{{#str}}alreadyannotated, mod_annopy{{/str}}</div>
+    {{/caneditsubmission}}{{/submission.totalannotationscount}}
+
     {{#submission}}{{#submission.canbeedited}}
         <a class="btn btn-primary mb-2 mt-1" href="submit.php?id={{cmid}}">{{#str}}editsubmission, mod_annopy{{/str}}</a>
     {{/submission.canbeedited}}{{/submission}}
@@ -39,6 +43,10 @@
         <a class="btn btn-primary mb-2 mt-1" href="submit.php?id={{cmid}}">{{#str}}addsubmission, mod_annopy{{/str}}</a>
     {{/canaddsubmission}}{{/submission}}
     <a class="btn btn-primary m-1" href="annotations_summary.php?id={{cmid}}"> {{#str}}annotationssummary, mod_annopy{{/str}}</a>
+
+    {{#canviewparticipants}}
+        {{> mod_annopy/annopy_pagination }}
+    {{/canviewparticipants}}
 
     <div class="annopy_submission">
         {{#submission}}
@@ -69,7 +77,7 @@
                         {{/content}}
                         {{^content}}<p class="text-center"><strong>{{#str}}nosubmission, mod_annopy{{/str}}</strong></p>{{/content}}
                         {{#canviewdetails}}<div class="details">
-                            {{#user}}{{#userpicture}}<strong>{{#str}}author, mod_annopy{{/str}}: </strong>{{{userpicture}}}<br>{{/userpicture}}{{/user}}
+                            {{#author}}{{#userpicture}}<strong>{{#str}}author, mod_annopy{{/str}}: </strong>{{{userpicture}}}<br>{{/userpicture}}{{/author}}
                             <strong>{{#str}}timecreated, mod_annopy{{/str}}: </strong> {{#userdate}}{{timecreated}}, {{#str}} strftimedaydatetime, core_langconfig {{/str}}{{/userdate}}
                                 {{#stats}}{{#datediff}}({{#str}}created, mod_annopy, {"years": {{datediff.y}}, "month": {{datediff.m}}, "days": {{datediff.d}}, "hours": {{datediff.h}} } {{/str}}){{/datediff}}{{/stats}}
                             </strong>

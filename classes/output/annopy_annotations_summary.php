@@ -49,6 +49,8 @@ class annopy_annotations_summary implements renderable, templatable {
     protected $annotationtypetemplates;
     /** @var string */
     protected $sesskey;
+    /** @var int */
+    protected $annotationstotalcount;
 
     /**
      * Construct this renderable.
@@ -58,8 +60,10 @@ class annopy_annotations_summary implements renderable, templatable {
      * @param array $annopyannotationtypes The annotationtypes used in the annopy instance
      * @param array $annotationtypetemplates The annotationtype templates available for the current user
      * @param string $sesskey The session key
+     * @param int $annotationstotalcount The total count of annotations
      */
-    public function __construct($cmid, $context, $participants, $annopyannotationtypes, $annotationtypetemplates, $sesskey) {
+    public function __construct($cmid, $context, $participants, $annopyannotationtypes, $annotationtypetemplates,
+        $sesskey, $annotationstotalcount) {
 
         $this->cmid = $cmid;
         $this->context = $context;
@@ -67,6 +71,7 @@ class annopy_annotations_summary implements renderable, templatable {
         $this->annopyannotationtypes = $annopyannotationtypes;
         $this->annotationtypetemplates = $annotationtypetemplates;
         $this->sesskey = $sesskey;
+        $this->annotationstotalcount = $annotationstotalcount;
     }
 
     /**
@@ -76,12 +81,16 @@ class annopy_annotations_summary implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output) {
+        global $USER;
+
         $data = new stdClass();
         $data->cmid = $this->cmid;
+        $data->myuserid = $USER->id;
         $data->participants = $this->participants;
         $data->annopyannotationtypes = $this->annopyannotationtypes;
         $data->annotationtypetemplates = $this->annotationtypetemplates;
         $data->sesskey = $this->sesskey;
+        $data->annotationstotalcount = $this->annotationstotalcount;
 
         if (has_capability('mod/annopy:addannotationtypetemplate', $this->context) ||
             has_capability('mod/annopy:editannotationtypetemplate', $this->context)) {
@@ -93,6 +102,7 @@ class annopy_annotations_summary implements renderable, templatable {
 
         $data->canaddannotationtype = has_capability('mod/annopy:addannotationtype', $this->context);
         $data->canaddannotationtypetemplate = has_capability('mod/annopy:addannotationtypetemplate', $this->context);
+        $data->canviewparticipants = has_capability('mod/annopy:viewparticipants', $this->context);
 
         return $data;
     }

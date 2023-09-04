@@ -24,7 +24,7 @@
 import $ from 'jquery';
 import {removeAllTempHighlights, anchor, describe} from './highlighting';
 
-export const init = (cmid, canaddannotation, myuserid, focusannotation) => {
+export const init = (cmid, canaddannotation, myuserid, focusannotation, userid) => {
 
     var edited = false;
     var annotations = Array();
@@ -110,7 +110,7 @@ export const init = (cmid, canaddannotation, myuserid, focusannotation) => {
     // Fetch and recreate annotations.
     $.ajax({
         url: './annotations.php',
-        data: {'id': cmid, 'getannotations': 1},
+        data: {'id': cmid, 'getannotations': 1, 'userid': userid},
         success: function(response) {
             annotations = JSON.parse(response);
 

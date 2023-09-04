@@ -61,19 +61,40 @@ class mod_annopy_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements();
 
-        // Set default values if module instance is updated.
-        /* $update = optional_param('update', null, PARAM_INT);
+        $update = optional_param('update', null, PARAM_INT);
+
         if (!isset($update) || $update == 0) {
-                // ... .
-        } */
+            // Add the header for the error types.
+            $mform->addElement('header', 'annotationtypeshdr', get_string('annotationtypes', 'annopy'));
+            $mform->setExpanded('annotationtypeshdr');
 
-        // Add custom activity settings.
-        /* $mform->addElement('header', 'availibilityhdr', get_string('availability'));
+            $select = "defaulttype = 1";
+            $select .= " OR userid = " . $USER->id;
+            $annotationtypetemplates = (array) $DB->get_records_select('annopy_atype_templates', $select);
 
-        $mform->addElement('date_time_selector', 'timeopen', get_string('annopyopentime', 'annopy'), array(
-            'optional' => true
-        ));
-        $mform->addHelpButton('timeopen', 'annopyopentime', 'annopy'); */
+            $strmanager = get_string_manager();
+
+            $this->add_checkbox_controller(1);
+
+            foreach ($annotationtypetemplates as $id => $type) {
+                if ($type->defaulttype == 1) {
+                    $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
+                        get_string('standardtype', 'mod_annopy') .'">(S)</span>';
+                } else {
+                    $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
+                        get_string('manualtype', 'mod_annopy') .'">(M)</span>';
+                }
+
+                if ($type->defaulttype == 1 && $strmanager->string_exists($type->name, 'mod_annopy')) {
+                    $name .= '<span>' . get_string($type->name, 'mod_annopy') . '</span>';
+                } else {
+                    $name .= '<span>' . $type->name . '</span>';
+                }
+
+                $mform->addElement('advcheckbox', 'annotationtypes[' . $id . ']', $name, ' ', array('group' => 1), array(0, 1));
+            }
+
+        }
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

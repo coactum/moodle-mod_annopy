@@ -38,6 +38,9 @@ $getannotations = optional_param('getannotations',  0, PARAM_INT);
 // Param if annotation should be deleted.
 $deleteannotation = optional_param('deleteannotation',  0, PARAM_INT); // Annotation to be deleted.
 
+// The ID of the user whose annotations should be shown.
+$userid = optional_param('userid', 0, PARAM_INT);
+
 // Set the basic variables $course, $cm and $moduleinstance.
 if ($id) {
     [$course, $cm] = get_course_and_cm_from_cmid($id, 'annopy');
@@ -64,7 +67,11 @@ $annotationtypes = (array) $DB->get_records_select('annopy_annotationtypes', $se
 // Get annotation (ajax).
 if ($getannotations) {
 
-    $annotations = $DB->get_records('annopy_annotations', array('annopy' => $moduleinstance->id));
+    if ($userid) {
+        $annotations = $DB->get_records('annopy_annotations', array('annopy' => $moduleinstance->id, 'userid' => $userid));
+    } else {
+        $annotations = $DB->get_records('annopy_annotations', array('annopy' => $moduleinstance->id));
+    }
 
     $select = "annopy = " . $moduleinstance->id;
 

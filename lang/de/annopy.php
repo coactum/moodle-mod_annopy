@@ -62,6 +62,7 @@ $string['details'] = 'Details';
 $string['numwordsraw'] = '{$a->wordscount} Wörter mit {$a->charscount} Zeichen, einschließlich {$a->spacescount} Leerzeichen.';
 $string['created'] = 'vor {$a->years} Jahren, {$a->month} Monaten, {$a->days} Tagen und {$a->hours} Stunden';
 $string['nosubmission'] = 'Keine Einreichung';
+$string['allannotations'] = 'Alle Annotationen';
 
 // Strings for annotations.
 $string['annotations'] = 'Annotationen';
@@ -125,6 +126,7 @@ $string['explanationtypename_help'] = 'Der Name des Annotationstypen. Wird nicht
 $string['explanationhexcolor'] = 'Farbe';
 $string['explanationhexcolor_help'] = 'Die Farbe des Annotationstypen als Hexadezimalwert. Dieser besteht aus genau 6 Zeichen (A-F sowie 0-9) und repräsentiert eine Farbe. Wenn die Farbe hier ausgewählt wird wird der Wert automatisch eingetragen, alternativ kann der Hexwert auch eingegeben werden. Den Hexwert von beliebigen Farben kann man z. B. unter <a href="https://www.w3schools.com/colors/colors_picker.asp" target="_blank">https://www.w3schools.com/colors/colors_picker.asp</a> herausfinden.';
 $string['explanationstandardtype'] = 'Hier kann ausgewählt werden, ob der Annotationstyp ein Standardtyp sein soll. In diesem Fall kann er von allen Lehrenden für ihre AnnoPys ausgewählt und dann in diesen verwendet werden. Andernfalls kann er nur von Ihnen selbst in Ihren AnnoPys verwendet werden.';
+$string['viewannotationsofuser'] = 'Annotationen des Benutzers ansehen';
 
 // Strings for lib.php.
 $string['deletealluserdata'] = 'Alle Benutzerdaten löschen';
@@ -171,6 +173,7 @@ $string['errfilloutfield'] = 'Bitte Feld ausfüllen';
 $string['incorrectcourseid'] = 'Inkorrekte Kurs-ID';
 $string['incorrectmodule'] = 'Inkorrekte Kurs-Modul-ID';
 $string['notallowedtodothis'] = 'Keine Berechtigung dies zu tun.';
+$string['alreadyannotated'] = 'Der Text kann nicht mehr bearbeitet werden da Teilnehmende ihn bereits annotiert haben.';
 
 // Strings for the privacy api.
 /*

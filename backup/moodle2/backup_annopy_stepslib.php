@@ -68,6 +68,7 @@ class backup_annopy_activity_structure_step extends backup_activity_structure_st
         $annopy->annotate_files('mod_annopy', 'intro', null); // This file area has no itemid.
         $entry->annotate_files('mod_annopy', 'entry', 'id'); */
 
-        return $this->prepare_activity_structure($annopy);
+        //return $this->prepare_activity_structure($annopy);
+        return false;
     }
 }

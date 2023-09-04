@@ -228,39 +228,25 @@ if ($CFG->branch < 400) {
     }
 }
 
-$participants = array_values(get_enrolled_users($context, 'mod/annopy:potentialparticipant'));
 $annotationtypesforform = helper::get_annotationtypes_for_form($annotationtypes);
-
-foreach ($participants as $key => $participant) {
-    if (has_capability('mod/annopy:viewannotationsevaluation', $context) || $participant->id == $USER->id) {
-        $participants[$key]->annotations = array();
-
-        foreach ($annotationtypesforform as $i => $type) {
-            $sql = "SELECT COUNT(*)
-                FROM {annopy_annotations} a
-                JOIN {annopy_submissions} s ON s.id = a.submission
-                WHERE s.annopy = :annopy AND
-                    s.author = :author AND
-                    a.type = :atype";
-            $params = array('annopy' => $moduleinstance->id, 'author' => $participant->id, 'atype' => $i);
-            $count = $DB->count_records_sql($sql, $params);
-
-            $participants[$key]->annotations[$i] = $count;
-        }
-
-        $participants[$key]->annotations = array_values($participants[$key]->annotations);
-    } else {
-        unset($participants[$key]);
-    }
-}
-
-$participants = array_values($participants);
+$participants = helper::get_annopy_participants($context, $moduleinstance, $annotationtypesforform);
 
 $strmanager = get_string_manager();
+$annotationstotalcount = 0;
 
 foreach ($annotationtypes as $i => $type) {
     $annotationtypes[$i]->canbeedited = $caneditannotationtype;
     $annotationtypes[$i]->canbedeleted = $candeleteannotationtype;
+
+    if (has_capability('mod/annopy:viewparticipants', $context)) {
+        $annotationtypes[$i]->totalcount = $DB->count_records('annopy_annotations',
+            array('annopy' => $moduleinstance->id, 'type' => $type->id));
+    } else {
+        $annotationtypes[$i]->totalcount = $DB->count_records('annopy_annotations',
+            array('annopy' => $moduleinstance->id, 'type' => $type->id, 'userid' => $USER->id));
+    }
+
+    $annotationstotalcount += $annotationtypes[$i]->totalcount;
 
     if ($strmanager->string_exists($type->name, 'mod_annopy')) {
         $annotationtypes[$i]->name = get_string($type->name, 'mod_annopy');
@@ -307,7 +293,8 @@ foreach ($annotationtypetemplates as $id => $templatetype) {
 $annotationtypetemplates = array_values($annotationtypetemplates);
 
 // Output page.
-$page = new annopy_annotations_summary($cm->id, $context, $participants, $annotationtypes, $annotationtypetemplates, sesskey());
+$page = new annopy_annotations_summary($cm->id, $context, $participants, $annotationtypes, $annotationtypetemplates,
+    sesskey(), $annotationstotalcount);
 
 echo $OUTPUT->render($page);
 

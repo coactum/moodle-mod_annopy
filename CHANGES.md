@@ -1,5 +1,11 @@
 ## Changelog ##
 
+- [0.4]:
+    - On the annotations summary you can now view the total amount of annotations for each user and each annotation type.
+    - On the overview you can now view the annotations filtered by users.
+    - When creating a module instance you can now add annotation types.
+    - Submissions can now only be edited if they are not already annotated.
+
 - [0.3]:
     - Teachers can now add, edit and delete annotation type templates and annotation types for the concrete module instance.
     - Added a first version of the annotations summary.

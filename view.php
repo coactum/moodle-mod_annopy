@@ -34,6 +34,9 @@ $id = optional_param('id', 0, PARAM_INT);
 // Param with id of annotation that should be focused.
 $focusannotation = optional_param('focusannotation',  0, PARAM_INT); // ID of annotation.
 
+// The ID of the user whose annotations should be shown.
+$userid = optional_param('userid', 0, PARAM_INT);
+
 // Set the basic variables $course, $cm and $moduleinstance.
 if ($id) {
     [$course, $cm] = get_course_and_cm_from_cmid($id, 'annopy');
@@ -65,6 +68,11 @@ $event->add_record_snapshot('course', $course);
 $event->add_record_snapshot('annopy', $moduleinstance);
 $event->trigger();
 
+// If user is participant only show his own annotations.
+if (!$userid && !has_capability('mod/annopy:viewparticipants', $context)) {
+    $userid = $USER->id;
+}
+
 // Get the name for this activity.
 $modulename = format_string($moduleinstance->name, true, array(
     'context' => $context
@@ -77,7 +85,7 @@ $PAGE->navbar->add(get_string("overview", "annopy"));
 
 $PAGE->requires->js_call_amd('mod_annopy/annotations', 'init',
     array( 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,
-    'focusannotation' => $focusannotation));
+    'focusannotation' => $focusannotation, 'userid' => $userid));
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
@@ -108,7 +116,7 @@ echo groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/annopy/view.php?id=$i
 $submission = $DB->get_record('annopy_submissions', array('annopy' => $moduleinstance->id));
 
 // Render and output page.
-$page = new annopy_view($cm, $course, $context, $submission);
+$page = new annopy_view($cm, $course, $context, $moduleinstance, $submission, $userid);
 
 echo $OUTPUT->render($page);
 

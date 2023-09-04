@@ -34,13 +34,13 @@ require_once("HTML/QuickForm/text.php");
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_annopy_colorpicker_form_element extends HTML_QuickForm_text {
-    // Whether to force the display of this element to flow LTR.
+    /** @var forceltr Whether to force the display of this element to flow LTR. */
     public $forceltr = false;
 
-    // String html for help button, if empty then no help.
+    /** @var _helpbutton String html for help button, if empty then no help. */
     public $_helpbutton = '';
 
-    // If true label will be hidden.
+    /** @var _hiddenlabel If true label will be hidden. */
     public $_hiddenlabel = false;
 
     /**

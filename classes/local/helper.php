@@ -25,6 +25,7 @@ namespace mod_annopy\local;
 
 use mod_annopy_annotation_form;
 use moodle_url;
+use stdClass;
 
 /**
  * Utility class for the module.
@@ -105,6 +106,51 @@ class helper {
     }
 
     /**
+     * Get all participants.
+     * @param object $context The context.
+     * @param object $moduleinstance The module instance.
+     * @param object $annotationtypesforform The annotation types prepared for the form.
+     * @param bool $originalkeys If the original keys should be returned.
+     * @return array action
+     */
+    public static function get_annopy_participants($context, $moduleinstance, $annotationtypesforform, $originalkeys = false) {
+        global $USER, $DB;
+
+        $participants = get_enrolled_users($context, 'mod/annopy:potentialparticipant');
+
+        foreach ($participants as $key => $participant) {
+            if (has_capability('mod/annopy:viewparticipants', $context) || $participant->id == $USER->id) {
+                $participants[$key]->annotations = array();
+                $participants[$key]->annotationscount = 0;
+
+                foreach ($annotationtypesforform as $i => $type) {
+                    $sql = "SELECT COUNT(*)
+                        FROM {annopy_annotations} a
+                        JOIN {annopy_submissions} s ON s.id = a.submission
+                        WHERE s.annopy = :annopy AND
+                            a.userid = :userid AND
+                            a.type = :atype";
+                    $params = array('annopy' => $moduleinstance->id, 'userid' => $participant->id, 'atype' => $i);
+                    $count = $DB->count_records_sql($sql, $params);
+
+                    $participants[$key]->annotations[$i] = $count;
+                    $participants[$key]->annotationscount += $count;
+                }
+
+                $participants[$key]->annotations = array_values($participants[$key]->annotations);
+            } else {
+                unset($participants[$key]);
+            }
+        }
+
+        if (!$originalkeys) {
+            $participants = array_values($participants);
+        }
+
+        return $participants;
+    }
+
+    /**
      * Prepare the annotations for the submission.
      *
      * @param object $cm The course module.
@@ -113,17 +159,25 @@ class helper {
      * @param object $submission The submission to be processed.
      * @param object $strmanager The moodle strmanager object needed to check annotation types in the annotation form.
      * @param object $annotationtypes The annotation types for the module.
+     * @param int $userid The ID of the user whose annotations should be shown.
      * @param object $annotationmode If annotationmode is activated.
      * @return object The submission with its annotations.
      */
     public static function prepare_annotations($cm, $course, $context, $submission, $strmanager, $annotationtypes,
-        $annotationmode) {
+        $userid, $annotationmode) {
 
         global $DB, $USER, $CFG, $OUTPUT;
 
         // Get annotations for submission.
-        $submission->annotations = array_values($DB->get_records('annopy_annotations',
+        if ($userid) {
+            $submission->annotations = array_values($DB->get_records('annopy_annotations',
+            array('annopy' => $cm->instance, 'submission' => $submission->id, 'userid' => $userid)));
+        } else {
+            $submission->annotations = array_values($DB->get_records('annopy_annotations',
             array('annopy' => $cm->instance, 'submission' => $submission->id)));
+        }
+        $submission->totalannotationscount = $DB->count_records('annopy_annotations',
+            array('annopy' => $cm->instance, 'submission' => $submission->id));
 
         foreach ($submission->annotations as $key => $annotation) {
 
@@ -186,5 +240,58 @@ class helper {
         }
 
         return $submission;
+    }
+
+    /**
+     * Returns the pagebar for the module instance.
+     * @param object $context The context for the module.
+     * @param int $userid The ID of the user whose annotations should be shown.
+     * @param object $submission The submission.
+     * @param object $moduleinstance The module instance.
+     * @param object $annotationtypesforform The annotationtypes prepared for the form.
+     *
+     * @return array action
+     */
+    public static function get_pagebar($context, $userid, $submission, $moduleinstance, $annotationtypesforform) {
+
+        if (!$submission) {
+            return false;
+        }
+
+        $participants = self::get_annopy_participants($context, $moduleinstance, $annotationtypesforform);
+
+        $pagebar = array();
+
+        foreach ($participants as $user) {
+            $obj = new stdClass();
+            if ($userid == $user->id) {
+                $obj->userid = $user->id;
+                $obj->display = '<strong>' . fullname($user) . ' (' . $user->annotationscount . ')' . '</strong>';
+            } else {
+                $obj->userid = $user->id;
+                $obj->display = $user->lastname;
+
+                if ($user->annotationscount) {
+                    $obj->display .= ' (' . $user->annotationscount . ')';
+                }
+            }
+
+            array_push($pagebar, $obj);
+        }
+
+        $obj = new stdClass();
+        $obj->userid = 'all';
+
+        if (!$userid) {
+            $obj->display = '<strong>' . get_string('allannotations', 'mod_annopy') .
+                ' (' . $submission->totalannotationscount . ')' . '</strong>';
+        } else {
+            $obj->display = get_string('allannotations', 'mod_annopy') .
+                ' (' . $submission->totalannotationscount . ')';
+        }
+
+        array_push($pagebar, $obj);
+
+        return $pagebar;
     }
 }

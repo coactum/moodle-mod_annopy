@@ -35,7 +35,7 @@
                 {{/canaddannotationtype}}
             </div>
 
-        <h3>{{#str}}annopyannotationtypes, mod_annopy{{/str}}</h3>
+        <h3 class="mt-3">{{#str}}annopyannotationtypes, mod_annopy{{/str}}</h3>
 
         <table class="table table-striped">
             <thead>
@@ -58,13 +58,37 @@
                             </div>
                         </th>
                     {{/annopyannotationtypes}}
+                    <th scope="col">{{#str}}total{{/str}}</th>
+                    <th scope="col">{{#str}}view{{/str}}</th>
                 </tr>
             </thead>
             <tbody>
                 {{#participants}}
-                    <tr><td>{{firstname}} {{lastname}}</td>
-                    {{#annotations}}<td>{{.}}</td>{{/annotations}}
+                    <tr>
+                        <td>{{firstname}} {{lastname}}</td>
+                        {{#annotations}}
+                            <td>{{.}}</td>
+                        {{/annotations}}
+                        <td>{{annotationscount}}</td>
+                        <td>
+                            <a href="view.php?id={{cmid}}&userid={{id}}" title="{{#str}}viewannotationsofuser, annopy {{/str}}"><i class="fa fa-lg fa-eye" aria-hidden="true" ></i></a>
+                        </td>
+                    </tr>
                 {{/participants}}
+                {{#canviewparticipants}}
+                    <tr>
+                        <th scope="col">{{#str}}total{{/str}}</th>
+                        {{#annopyannotationtypes}}
+                            <th scope="col">
+                                {{totalcount}}
+                            </th>
+                        {{/annopyannotationtypes}}
+                        <th scope="col">{{annotationstotalcount}}</th>
+                        <th scope="col">
+                            <a href="view.php?id={{cmid}}&userid=0" title="{{#str}}viewannotationsofuser, annopy {{/str}}"><i class="fa fa-lg fa-eye" aria-hidden="true" ></i></a>
+                        </th>
+                    </tr>
+                {{/canviewparticipants}}
             </tbody>
         </table>
     </div>
@@ -76,7 +100,7 @@
                 {{#canaddannotationtypetemplate}}<a class="btn btn-primary m-1" href="annotationtypes.php?id={{cmid}}&mode=1"> {{#str}}addannotationtype, mod_annopy{{/str}} ({{#str}}template, mod_annopy{{/str}})</a>{{/canaddannotationtypetemplate}}
             </div>
 
-            <h3>{{#str}}annotationtypetemplates, mod_annopy{{/str}}</h3>
+            <h3 class="mt-3">{{#str}}annotationtypetemplates, mod_annopy{{/str}}</h3>
 
             {{#annotationtypetemplates.0}}
                 <table class="table table-striped">
