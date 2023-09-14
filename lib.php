@@ -29,8 +29,6 @@
  * @uses FEATURE_SHOW_DESCRIPTION
  * @uses FEATURE_GRADE_HAS_GRADE
  * @uses FEATURE_RATE
- * @uses FEATURE_GROUPS
- * @uses FEATURE_GROUPINGS
  * @uses FEATURE_COMPLETION_TRACKS_VIEWS
  * @uses FEATURE__BACKUP_MOODLE2
  * @param string $feature Constant for requested feature.
@@ -47,10 +45,6 @@ function annopy_supports($feature) {
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
-            return true;
-        case FEATURE_GROUPS:
-            return true;
-        case FEATURE_GROUPINGS:
             return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return true;
@@ -182,7 +176,7 @@ function annopy_delete_instance($id) {
     // Delete annotation types for the module instance.
     $DB->delete_records("annopy_annotationtypes", array("annopy" => $annopy->id));
 
-    // Delete annopy, else return false.
+    // Delete module instance, else return false.
     if (!$DB->delete_records("annopy", array("id" => $annopy->id))) {
         return false;
     }
@@ -534,7 +528,17 @@ function annopy_print_recent_mod_activity($activity, $courseid, $detail, $modnam
 function annopy_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'annopyheader', get_string('modulenameplural', 'mod_annopy'));
 
+    $mform->addElement('checkbox', 'reset_annopy_annotations', get_string('deleteannotations', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_annotations', 'reset_annopy_all', 'checked');
+
+    $mform->addElement('checkbox', 'reset_annopy_submissionandfiles', get_string('deletesubmissionandfiles', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_submissionandfiles', 'reset_annopy_all', 'checked');
+
+    $mform->addElement('checkbox', 'reset_annopy_annotationtypes', get_string('deleteannotationtypes', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_annotationtypes', 'reset_annopy_all', 'checked');
+
     $mform->addElement('checkbox', 'reset_annopy_all', get_string('deletealluserdata', 'mod_annopy'));
+
 }
 
 /**
@@ -544,12 +548,13 @@ function annopy_reset_course_form_definition(&$mform) {
  * @return array
  */
 function annopy_reset_course_form_defaults($course) {
-    return array('reset_annopy_all' => 1);
+    return array('reset_annopy_annotations' => 0, 'reset_annopy_submissionandfiles' => 0,
+        'reset_annopy_annotationtypes' => 0, 'reset_annopy_all' => 1);
 }
 
 /**
  * This function is used by the reset_course_userdata function in moodlelib.
- * This function will remove all userdata from the specified annopy.
+ * This function will remove all userdata from the specified module.
  *
  * @param object $data The data submitted from the reset course.
  * @return array status array
@@ -558,78 +563,83 @@ function annopy_reset_userdata($data) {
     global $CFG, $DB;
 
     require_once($CFG->libdir . '/filelib.php');
-    require_once($CFG->dirroot . '/rating/lib.php');
 
-    $componentstr = get_string('modulenameplural', 'annopy');
+    $modulenameplural = get_string('modulenameplural', 'annopy');
     $status = array();
 
-    /*
     // Get annopys in course that should be resetted.
-    $sql = "SELECT m.id
-                FROM {annopy} m
-                WHERE m.course = ?";
+    $sql = "SELECT a.id
+                FROM {annopy} a
+                WHERE a.course = ?";
 
-    $params = array(
-        $data->courseid
-    );
+    $params = array($data->courseid);
 
     $annopys = $DB->get_records_sql($sql, $params);
 
-    // Delete entries and their annotations, files and ratings.
-    if (!empty($data->reset_annopy_all)) {
+    // Delete all annotations.
+    if (!empty($data->reset_annopy_annotations)) {
+        $DB->delete_records_select('annopy_annotations', "annopy IN ($sql)", $params);
+
+        $status[] = array(
+            'component' => $modulenameplural,
+            'item' => get_string('annotationsdeleted', 'mod_annopy'),
+            'error' => false
+        );
+    }
+
+    // Delete submission and associated files.
+    if (!empty($data->reset_annopy_all) || !empty($data->reset_annopy_submissionandfiles)) {
 
         $fs = get_file_storage();
-
-        // Get ratings manager.
-        $rm = new rating_manager();
-        $ratingdeloptions = new stdClass;
-        $ratingdeloptions->component = 'mod_annopy';
-        $ratingdeloptions->ratingarea = 'entry';
 
         foreach ($annopys as $annopyid => $unused) {
             if (!$cm = get_coursemodule_from_instance('annopy', $annopyid)) {
                 continue;
             }
 
-            // Remove files.
+            // Remove associated files.
             $context = context_module::instance($cm->id);
-            $fs->delete_area_files($context->id, 'mod_annopy', 'entry');
-            $fs->delete_area_files($context->id, 'mod_annopy', 'feedback');
-
-            // Remove ratings.
-            $ratingdeloptions->contextid = $context->id;
-            $rm->delete_ratings($ratingdeloptions);
+            $fs->delete_area_files($context->id, 'mod_annopy', 'submission');
         }
 
-        // Remove all grades from gradebook (if that is not already done by the reset_gradebook_grades).
-        if (empty($data->reset_gradebook_grades)) {
-            annopy_reset_gradebook($data->courseid);
-        }
-
-        // Delete the annotations of all entries.
+        // Delete annotations.
         $DB->delete_records_select('annopy_annotations', "annopy IN ($sql)", $params);
 
-        // Delete all entries.
-        $DB->delete_records_select('annopy_entries', "annopy IN ($sql)", $params);
+        // Delete submission.
+        $DB->delete_records_select('annopy_submissions', "annopy IN ($sql)", $params);
 
         $status[] = array(
-            'component' => $modulename,
-            'item' => get_string('alluserdatadeleted', 'annopy'),
+            'component' => $modulenameplural,
+            'item' => get_string('submissionandfilesdeleted', 'mod_annopy'),
             'error' => false
         );
-    } */
+    }
+
+    // Delete annotation types.
+    if (!empty($data->reset_annopy_all) || !empty($data->reset_annopy_annotationtypes)) {
+        $DB->delete_records_select('annopy_annotationtypes', "annopy IN ($sql)", $params);
+
+        $status[] = array(
+            'component' => $modulenameplural,
+            'item' => get_string('annotationtypesdeleted', 'mod_annopy'),
+            'error' => false
+        );
+    }
 
     // Updating dates - shift may be negative too.
     if ($data->timeshift) {
         // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
         // See MDL-9367.
-        shift_course_mod_dates('annopy', array('assesstimestart', 'assesstimefinish'), $data->timeshift, $data->courseid);
-        $status[] = array('component' => $componentstr, 'item' => get_string('datechanged'), 'error' => false);
+        shift_course_mod_dates('annopy', array(), $data->timeshift, $data->courseid);
+        $status[] = array(
+            'component' => $modulenameplural,
+            'item' => get_string('datechanged'),
+            'error' => false
+        );
     }
 
     return $status;
 }
-
 
 /**
  * Removes all grades in the annopy gradebook
@@ -666,13 +676,13 @@ function annopy_get_user_grades($annopy, $userid = 0) {
 
     $ratingoptions = new stdClass();
     $ratingoptions->component = 'mod_annopy';
-    $ratingoptions->ratingarea = 'entry';
+    $ratingoptions->ratingarea = 'submission';
     $ratingoptions->modulename = 'annopy';
     $ratingoptions->moduleid = $annopy->id;
     $ratingoptions->userid = $userid;
     $ratingoptions->aggregationmethod = $annopy->assessed;
     $ratingoptions->scaleid = $annopy->scale;
-    $ratingoptions->itemtable = 'annopy_entries';
+    $ratingoptions->itemtable = 'annopy_submissions';
     $ratingoptions->itemtableusercolumn = 'userid';
 
     $rm = new rating_manager();
@@ -794,7 +804,7 @@ function annopy_scale_used_anywhere($scaleid) {
  */
 function annopy_get_file_areas($course, $cm, $context) {
     return array(
-        'entry' => get_string('entry', 'mod_annopy'),
+        'submission' => get_string('submission', 'mod_annopy'),
     );
 }
 

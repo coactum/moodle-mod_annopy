@@ -61,10 +61,9 @@ class restore_annopy_activity_task extends restore_activity_task {
 
         // Define the contents (files).
         // tablename, array(field1, field 2), $mapping.
-        /*
         $contents[] = new restore_decode_content('annopy', array('intro'), 'annopy');
-        $contents[] = new restore_decode_content('annopy_entries', array('text', 'feedback'), 'annopy_entry');
-        */
+        $contents[] = new restore_decode_content('annopy_submissions', array('content'), 'annopy_submission');
+
         return $contents;
     }
 
@@ -77,11 +76,9 @@ class restore_annopy_activity_task extends restore_activity_task {
         $rules = array();
 
         // Define the rules.
-        /*
         $rules[] = new restore_decode_rule('ANNOPYINDEX', '/mod/annopy/index.php?id=$1', 'course');
         $rules[] = new restore_decode_rule('ANNOPYVIEWBYID', '/mod/annopy/view.php?id=$1&userid=$2',
         array('course_module', 'userid'));
-        */
 
         return $rules;
     }
@@ -97,9 +94,14 @@ class restore_annopy_activity_task extends restore_activity_task {
         $rules = array();
 
         // Define the rules to restore the logs (one rule for each event / file in the plugin/event/ folder).
-        /*
         $rules[] = new restore_log_rule('annopy', 'view', 'view.php?id={course_module}', '{annopy}');
-        */
+        $rules[] = new restore_log_rule('annopy', 'add submission', 'view.php?id={course_module}', '{annopy}');
+        $rules[] = new restore_log_rule('annopy', 'update submission', 'view.php?id={course_module}', '{annopy}');
+        $rules[] = new restore_log_rule('annopy', 'delete submission', 'view.php?id={course_module}', '{annopy}');
+        $rules[] = new restore_log_rule('annopy', 'add annotation', 'view.php?id={course_module}', '{annopy}');
+        $rules[] = new restore_log_rule('annopy', 'update annotation', 'view.php?id={course_module}', '{annopy}');
+        $rules[] = new restore_log_rule('annopy', 'delete annotation', 'view.php?id={course_module}', '{annopy}');
+
         return $rules;
     }
 

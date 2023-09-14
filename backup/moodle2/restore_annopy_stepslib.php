@@ -45,9 +45,12 @@ class restore_annopy_activity_structure_step extends restore_activity_structure_
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('annopy', '/activity/annopy');
+        $paths[] = new restore_path_element('annopy_annotationtype', '/activity/annopy/annotationtypes/annotationtype');
 
         if ($userinfo) {
-            $paths[] = new restore_path_element('annopy_entry', '/activity/annopy/entries/entry');
+            $paths[] = new restore_path_element('annopy_submission', '/activity/annopy/submissions/submission');
+            $paths[] = new restore_path_element('annopy_submission_annotation',
+                '/activity/annopy/submissions/submission/annotations/annotation');
         }
 
         return $this->prepare_activity_structure($paths);
@@ -65,37 +68,69 @@ class restore_annopy_activity_structure_step extends restore_activity_structure_
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
-        // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
-        // See MDL-9367.
-        if (!isset($data->assesstimestart)) {
-            $data->assesstimestart = 0;
-        }
-        $data->assesstimestart = $this->apply_date_offset($data->assesstimestart);
-
-        if (!isset($data->assesstimefinish)) {
-            $data->assesstimefinish = 0;
-        }
-        $data->assesstimefinish = $this->apply_date_offset($data->assesstimefinish);
-
-        if (!isset($data->timeopen)) {
-            $data->timeopen = 0;
-        }
-        $data->timeopen = $this->apply_date_offset($data->timeopen);
-
-        if (!isset($data->timeclose)) {
-            $data->timeclose = 0;
-        }
-        $data->timeclose = $this->apply_date_offset($data->timeclose);
-
-        if ($data->scale < 0) { // Scale found, get mapping.
-            $data->scale = - ($this->get_mappingid('scale', abs($data->scale)));
-        }
-
         $newitemid = $DB->insert_record('annopy', $data);
         $this->apply_activity_instance($newitemid);
         $this->newinstanceid = $newitemid;
 
         return;
+    }
+
+    /**
+     * Restore AnnoPy submission.
+     *
+     * @param object $data data.
+     */
+    protected function process_annopy_submission($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+
+        $data->annopy = $this->get_new_parentid('annopy');
+        $data->author = $this->get_mappingid('user', $data->author);
+
+        $newitemid = $DB->insert_record('annopy_submissions', $data);
+        $this->set_mapping('annopy_submission', $oldid, $newitemid, true);  // The true parameter is necessary for file handling.
+    }
+
+    /**
+     * Restore AnnoPy annotationtype.
+     *
+     * @param object $data data.
+     */
+    protected function process_annopy_annotationtype($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+
+        $data->annopy = $this->get_new_parentid('annopy');
+
+        $newitemid = $DB->insert_record('annopy_annotationtypes', $data);
+        $this->set_mapping('annopy_annotationtype', $oldid, $newitemid);
+
+    }
+
+    /**
+     * Add annotations to restored AnnoPy submissions.
+     *
+     * @param stdClass $data Tag
+     */
+    protected function process_annopy_submission_annotation($data) {
+        global $DB;
+
+        $data = (object) $data;
+
+        $oldid = $data->id;
+
+        $data->annopy = $this->newinstanceid;
+        $data->submission = $this->get_new_parentid('annopy_submission');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->type = $this->get_mappingid('annopy_annotationtype', $data->type);
+
+        $newitemid = $DB->insert_record('annopy_annotations', $data);
+
+        $this->set_mapping('annopy_annotation', $oldid, $newitemid);
     }
 
     /**
@@ -106,6 +141,6 @@ class restore_annopy_activity_structure_step extends restore_activity_structure_
         $this->add_related_files('mod_annopy', 'intro', null);
 
         // Component, filearea, mapping.
-        $this->add_related_files('mod_annopy', 'entry', 'annopy_entry');
+        $this->add_related_files('mod_annopy', 'submission', 'annopy_submission');
     }
 }

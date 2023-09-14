@@ -1,5 +1,10 @@
 ## Changelog ##
 
+- [0.5]:
+    - Added backup functionality.
+    - Added privacy functionality.
+    - Added course reset functionality.
+
 - [0.4]:
     - On the annotations summary you can now view the total amount of annotations for each user and each annotation type.
     - On the overview you can now view the annotations filtered by users.

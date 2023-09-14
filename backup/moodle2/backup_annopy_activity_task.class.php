@@ -29,7 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 // More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
 
 require_once($CFG->dirroot.'/mod/annopy/backup/moodle2/backup_annopy_stepslib.php');
-require_once($CFG->dirroot.'/mod/annopy/backup/moodle2/backup_annopy_settingslib.php');
 
 /**
  * The class provides all the settings and steps to perform one complete backup of mod_annopy.
@@ -62,10 +61,10 @@ class backup_annopy_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, "/");
 
         // Link to the list of plugin instances.
-        $search = "/(".$base."\//mod\/annopy\/index.php\?id\=)([0-9]+)/";
+        $search = "/(".$base."\/mod\/annopy\/index.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@ANNOPYINDEX*$2@$', $content);
 
-        // Link to view by moduleid with optional userid if only items of one user should be shown.
+        // Link to view by moduleid with optional userid if only annotations of one user should be shown.
         $search = "/(".$base."\/mod\/annopy\/view.php\?id\=)([0-9]+)(&|&amp;)userid=([0-9]+)/";
         $content = preg_replace($search, '$@ANNOPYVIEWBYID*$2*$4@$', $content);
 

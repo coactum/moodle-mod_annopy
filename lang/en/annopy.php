@@ -128,8 +128,14 @@ $string['explanationhexcolor_help'] = 'The color of the annotation type as hexad
 $string['explanationstandardtype'] = 'Here you can select whether the annotation type should be a default type. In this case teachers can select it as annotation type that can be used in their AnnoPys. Otherwise, only you can add this annotation type to your AnnoPys.';
 $string['viewannotationsofuser'] = 'View annotations of the user';
 
-// Strings for lib.php.
-$string['deletealluserdata'] = 'Delete all user data';
+// Strings for course reset.
+$string['deletealluserdata'] = 'Delete the submission with associated files, all annotations and all annotation types.';
+$string['deleteannotations'] = 'Delete all annotations';
+$string['annotationsdeleted'] = 'Annotations were deleted';
+$string['deletesubmissionandfiles'] = 'Delete the submission, all associated files and all associated annotations';
+$string['submissionandfilesdeleted'] = 'The submission, all associated files and all associated annotations been deleted';
+$string['deleteannotationtypes'] = 'Delete all annotation types';
+$string['annotationtypesdeleted'] = 'All annotation types were deleted';
 
 // Strings for the recent activity.
 
@@ -167,6 +173,10 @@ $string['task'] = 'Task';
 // Strings for events.
 $string['eventsubmissioncreated'] = 'Submission created';
 $string['eventsubmissionupdated'] = 'Submission updated';
+$string['eventsubmissiondeleted'] = 'Submission deleted';
+$string['eventannotationcreated'] = 'Annotation created';
+$string['eventannotationupdated'] = 'Annotation updated';
+$string['eventannotationdeleted'] = 'Annotation deleted';
 
 // Strings for error messages.
 $string['errfilloutfield'] = 'Please fill out this field';
@@ -176,10 +186,27 @@ $string['notallowedtodothis'] = 'No permissions to do this.';
 $string['alreadyannotated'] = 'The text can no longer be edited because participants have already annotated it.';
 
 // Strings for the privacy api.
-/*
-$string['privacy:metadata:annopy_participants'] = 'Contains the personal data of all AnnoPy participants.';
-$string['privacy:metadata:annopy_submissions'] = 'Contains all data related to AnnoPy submissions.';
-$string['privacy:metadata:annopy_participants:annopy'] = 'Id of the AnnoPy activity the participant belongs to';
-$string['privacy:metadata:annopy_submissions:annopy'] = 'Id of the AnnoPy activity the submission belongs to';
-$string['privacy:metadata:core_message'] = 'The AnnoPy plugin sends messages to users and saves their content in the database.';
-*/
+$string['privacy:metadata:annopy_submissions'] = 'Contains the submissions of all AnnoPys.';
+$string['privacy:metadata:annopy_annotations'] = 'Contains the annotations made in all AnnoPys.';
+$string['privacy:metadata:annopy_atype_templates'] = 'Contains the annotation type templates created by teachers.';
+$string['privacy:metadata:annopy_submissions:annopy'] = 'ID of the AnnoPy the submission belongs to.';
+$string['privacy:metadata:annopy_submissions:author'] = 'ID of the author of the submission.';
+$string['privacy:metadata:annopy_submissions:title'] = 'Title of the submission.';
+$string['privacy:metadata:annopy_submissions:content'] = 'Content of the submission.';
+$string['privacy:metadata:annopy_submissions:currentversion'] = 'Current version of the submission.';
+$string['privacy:metadata:annopy_submissions:format'] = 'Submission format.';
+$string['privacy:metadata:annopy_submissions:timecreated'] = 'Date on which the submission was made.';
+$string['privacy:metadata:annopy_submissions:timemodified'] = 'Time the submission was last modified.';
+$string['privacy:metadata:annopy_annotations:annopy'] = 'ID of the AnnoPy the annotated submission belongs to.';
+$string['privacy:metadata:annopy_annotations:submission'] = 'ID of the submission the annotation belongs to.';
+$string['privacy:metadata:annopy_annotations:userid'] = 'ID of the user that made the annotation.';
+$string['privacy:metadata:annopy_annotations:timecreated'] = 'Date on which the annotation was created.';
+$string['privacy:metadata:annopy_annotations:timemodified'] = 'Time the annotation was last modified.';
+$string['privacy:metadata:annopy_annotations:type'] = 'ID of the type of the annotation.';
+$string['privacy:metadata:annopy_annotations:text'] = 'Content of the annotation.';
+$string['privacy:metadata:annopy_atype_templates:timecreated'] = 'Date on which the annotation type template was created.';
+$string['privacy:metadata:annopy_atype_templates:timemodified'] = 'Time the annotation type template was last modified.';
+$string['privacy:metadata:annopy_atype_templates:name'] = 'Name of the annotation type template.';
+$string['privacy:metadata:annopy_atype_templates:color'] = 'Color of the annotation type template as hexadecimal value.';
+$string['privacy:metadata:annopy_atype_templates:userid'] = 'ID of the user that made the annotation type template.';
+$string['privacy:metadata:core_files'] = 'Files associated with AnnoPy submissions are saved.';
