@@ -1,5 +1,11 @@
 ## Changelog ##
 
+- [0.6]:
+    - Fix for a bug preventing the change of the priority of annotation types.
+    - Ensured compatibility with Moodle 4.3 and PHP 8.2.
+        - Changed code to comply with new moodle coding standards.
+    - Deleting unnecessary elements like tasks and grading.
+
 - [0.5]:
     - Added backup functionality.
     - Added privacy functionality.
