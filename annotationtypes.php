@@ -50,7 +50,7 @@ if (!$cm) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 } else if (!$course) {
     throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
-} else if (!$coursesections = $DB->get_record("course_sections", array("id" => $cm->section))) {
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 }
 
@@ -58,7 +58,7 @@ require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 
-$redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', array('id' => $id));
+$redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', ['id' => $id]);
 
 // Capabilities check.
 if (!$edit) { // If type or template should be added.
@@ -78,7 +78,7 @@ if (!$edit) { // If type or template should be added.
 // Get type or template to be edited.
 if ($edit !== 0) {
     if ($mode == 1) { // If type is template type.
-        $editedtype = $DB->get_record('annopy_atype_templates', array('id' => $edit));
+        $editedtype = $DB->get_record('annopy_atype_templates', ['id' => $edit]);
 
         if (isset($editedtype->defaulttype) && $editedtype->defaulttype == 1
             && !has_capability('mod/annopy:managedefaultannotationtypetemplates', $context)) {
@@ -86,7 +86,7 @@ if ($edit !== 0) {
                 redirect($redirecturl, get_string('notallowedtodothis', 'mod_annopy'), null, notification::NOTIFY_ERROR);
         }
     } else if ($mode == 2) { // If type is annopy type.
-        $editedtype = $DB->get_record('annopy_annotationtypes', array('id' => $edit));
+        $editedtype = $DB->get_record('annopy_annotationtypes', ['id' => $edit]);
 
         if ($moduleinstance->id !== $editedtype->annopy) {
             redirect($redirecturl, get_string('annotationtypecantbeedited', 'mod_annopy'), null, notification::NOTIFY_ERROR);
@@ -114,18 +114,18 @@ $annotationtypes = (array) $DB->get_records_select('annopy_annotationtypes', $se
 
 // Instantiate form.
 $mform = new mod_annopy_annotationtypes_form(null,
-    array('editdefaulttype' => has_capability('mod/annopy:managedefaultannotationtypetemplates', $context), 'mode' => $mode));
+    ['editdefaulttype' => has_capability('mod/annopy:managedefaultannotationtypetemplates', $context), 'mode' => $mode]);
 
 if (isset($editedtypeid)) {
     if ($mode == 1) { // If type is template annotation type.
-        $mform->set_data(array('id' => $id, 'mode' => $mode, 'typeid' => $editedtypeid,
-            'typename' => $editedtypename, 'color' => $editedcolor, 'standardtype' => $editeddefaulttype));
+        $mform->set_data(['id' => $id, 'mode' => $mode, 'typeid' => $editedtypeid,
+            'typename' => $editedtypename, 'color' => $editedcolor, 'standardtype' => $editeddefaulttype]);
     } else if ($mode == 2) {
-        $mform->set_data(array('id' => $id, 'mode' => $mode, 'typeid' => $editedtypeid, 'typename' => $editedtypename,
-            'color' => $editedcolor));
+        $mform->set_data(['id' => $id, 'mode' => $mode, 'typeid' => $editedtypeid, 'typename' => $editedtypename,
+            'color' => $editedcolor]);
     }
 } else {
-    $mform->set_data(array('id' => $id, 'mode' => $mode, 'color' => '#FFFF00'));
+    $mform->set_data(['id' => $id, 'mode' => $mode, 'color' => '#FFFF00']);
 }
 
 if ($mform->is_cancelled()) {
@@ -138,7 +138,7 @@ if ($mform->is_cancelled()) {
         $annotationtype = new stdClass();
         $annotationtype->timecreated = time();
         $annotationtype->timemodified = 0;
-        $annotationtype->name = format_text($fromform->typename, 1, array('para' => false));
+        $annotationtype->name = format_text($fromform->typename, 1, ['para' => false]);
         $annotationtype->color = $fromform->color;
 
         if (isset($fromform->standardtype) && $fromform->standardtype === 1 &&
@@ -173,9 +173,9 @@ if ($mform->is_cancelled()) {
     } else if ($fromform->typeid !== 0 && isset($fromform->typename)) { // Update existing annotation type.
 
         if ($mode == 1) { // If type is template annotation type.
-            $annotationtype = $DB->get_record('annopy_atype_templates', array('id' => $fromform->typeid));
+            $annotationtype = $DB->get_record('annopy_atype_templates', ['id' => $fromform->typeid]);
         } else if ($mode == 2) { // If type is annopy annotation type.
-            $annotationtype = $DB->get_record('annopy_annotationtypes', array('id' => $fromform->typeid));
+            $annotationtype = $DB->get_record('annopy_annotationtypes', ['id' => $fromform->typeid]);
         }
 
         if ($annotationtype &&
@@ -186,7 +186,7 @@ if ($mform->is_cancelled()) {
             && $annotationtype->userid == $USER->id))) {
 
             $annotationtype->timemodified = time();
-            $annotationtype->name = format_text($fromform->typename, 1, array('para' => false));
+            $annotationtype->name = format_text($fromform->typename, 1, ['para' => false]);
             $annotationtype->color = $fromform->color;
 
             if ($mode == 1 && has_capability('mod/annopy:managedefaultannotationtypetemplates', $context)) {
@@ -218,11 +218,11 @@ if ($mform->is_cancelled()) {
 }
 
 // Get the name for this module instance.
-$modulename = format_string($moduleinstance->name, true, array(
-    'context' => $context
-));
+$modulename = format_string($moduleinstance->name, true, [
+    'context' => $context,
+]);
 
-$PAGE->set_url('/mod/annopy/annotationtypes.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/annopy/annotationtypes.php', ['id' => $cm->id]);
 
 $navtitle = '';
 

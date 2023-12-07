@@ -53,7 +53,7 @@ if (!$cm) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 } else if (!$course) {
     throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
-} else if (!$coursesections = $DB->get_record("course_sections", array("id" => $cm->section))) {
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 }
 
@@ -68,9 +68,9 @@ $annotationtypes = (array) $DB->get_records_select('annopy_annotationtypes', $se
 if ($getannotations) {
 
     if ($userid) {
-        $annotations = $DB->get_records('annopy_annotations', array('annopy' => $moduleinstance->id, 'userid' => $userid));
+        $annotations = $DB->get_records('annopy_annotations', ['annopy' => $moduleinstance->id, 'userid' => $userid]);
     } else {
-        $annotations = $DB->get_records('annopy_annotations', array('annopy' => $moduleinstance->id));
+        $annotations = $DB->get_records('annopy_annotations', ['annopy' => $moduleinstance->id]);
     }
 
     $select = "annopy = " . $moduleinstance->id;
@@ -78,9 +78,9 @@ if ($getannotations) {
     foreach ($annotations as $key => $annotation) {
 
         if (!array_key_exists($annotation->type, $annotationtypes) &&
-            $DB->record_exists('annopy_annotationtypes', array('id' => $annotation->type))) {
+            $DB->record_exists('annopy_annotationtypes', ['id' => $annotation->type])) {
 
-            $annotationtypes[$annotation->type] = $DB->get_record('annopy_annotationtypes', array('id' => $annotation->type));
+            $annotationtypes[$annotation->type] = $DB->get_record('annopy_annotationtypes', ['id' => $annotation->type]);
         }
 
         if (isset($annotationtypes[$annotation->type])) {
@@ -92,7 +92,7 @@ if ($getannotations) {
     if ($annotations) {
         echo json_encode($annotations);
     } else {
-        echo json_encode(array());
+        echo json_encode([]);
     }
 
     die;
@@ -101,10 +101,10 @@ if ($getannotations) {
 require_capability('mod/annopy:viewannotations', $context);
 
 // Header.
-$PAGE->set_url('/mod/annopy/annotations.php', array('id' => $id));
+$PAGE->set_url('/mod/annopy/annotations.php', ['id' => $id]);
 $PAGE->set_title(format_string($moduleinstance->name));
 
-$urlparams = array('id' => $id);
+$urlparams = ['id' => $id];
 
 $redirecturl = new moodle_url('/mod/annopy/view.php', $urlparams);
 
@@ -114,17 +114,17 @@ if (has_capability('mod/annopy:deleteannotation', $context) && $deleteannotation
 
     global $USER;
 
-    if ($DB->record_exists('annopy_annotations', array('id' => $deleteannotation, 'annopy' => $moduleinstance->id,
-        'userid' => $USER->id))) {
+    if ($DB->record_exists('annopy_annotations', ['id' => $deleteannotation, 'annopy' => $moduleinstance->id,
+        'userid' => $USER->id])) {
 
-        $DB->delete_records('annopy_annotations', array('id' => $deleteannotation, 'annopy' => $moduleinstance->id,
-            'userid' => $USER->id));
+        $DB->delete_records('annopy_annotations', ['id' => $deleteannotation, 'annopy' => $moduleinstance->id,
+            'userid' => $USER->id]);
 
         // Trigger module annotation deleted event.
-        $event = \mod_annopy\event\annotation_deleted::create(array(
+        $event = \mod_annopy\event\annotation_deleted::create([
             'objectid' => $deleteannotation,
-            'context' => $context
-        ));
+            'context' => $context,
+        ]);
 
         $event->trigger();
 
@@ -138,14 +138,14 @@ if (has_capability('mod/annopy:deleteannotation', $context) && $deleteannotation
 require_once($CFG->dirroot . '/mod/annopy/annotation_form.php');
 
 // Instantiate form.
-$mform = new mod_annopy_annotation_form(null, array('types' => helper::get_annotationtypes_for_form($annotationtypes)));
+$mform = new mod_annopy_annotation_form(null, ['types' => helper::get_annotationtypes_for_form($annotationtypes)]);
 
 if ($fromform = $mform->get_data()) {
 
     // In this case you process validated data. $mform->get_data() returns data posted in form.
     if ((isset($fromform->annotationid) && $fromform->annotationid !== 0) && isset($fromform->text)) { // Update annotation.
         $annotation = $DB->get_record('annopy_annotations',
-            array('annopy' => $moduleinstance->id, 'submission' => $fromform->submission, 'id' => $fromform->annotationid));
+            ['annopy' => $moduleinstance->id, 'submission' => $fromform->submission, 'id' => $fromform->annotationid]);
 
         // Prevent changes by user in hidden form fields.
         if (!$annotation) {
@@ -159,20 +159,20 @@ if ($fromform = $mform->get_data()) {
         }
 
         $annotation->timemodified = time();
-        $annotation->text = format_text($fromform->text, 2, array('para' => false));
+        $annotation->text = format_text($fromform->text, 2, ['para' => false]);
         $annotation->type = $fromform->type;
 
         $DB->update_record('annopy_annotations', $annotation);
 
         // Trigger module annotation updated event.
-        $event = \mod_annopy\event\annotation_updated::create(array(
+        $event = \mod_annopy\event\annotation_updated::create([
             'objectid' => $fromform->annotationid,
-            'context' => $context
-        ));
+            'context' => $context,
+        ]);
 
         $event->trigger();
 
-        $urlparams = array('id' => $id, 'annotationmode' => 1, 'focusannotation' => $fromform->annotationid);
+        $urlparams = ['id' => $id, 'annotationmode' => 1, 'focusannotation' => $fromform->annotationid];
         $redirecturl = new moodle_url('/mod/annopy/view.php', $urlparams);
 
         redirect($redirecturl, get_string('annotationedited', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);
@@ -191,7 +191,7 @@ if ($fromform = $mform->get_data()) {
                 redirect($redirecturl, get_string('annotationinvalid', 'mod_annopy'), null, notification::NOTIFY_ERROR);
             }
 
-            if (!$DB->record_exists('annopy_submissions', array('annopy' => $moduleinstance->id, 'id' => $fromform->submission))) {
+            if (!$DB->record_exists('annopy_submissions', ['annopy' => $moduleinstance->id, 'id' => $fromform->submission])) {
                 redirect($redirecturl, get_string('annotationinvalid', 'mod_annopy'), null, notification::NOTIFY_ERROR);
             }
 
@@ -215,13 +215,13 @@ if ($fromform = $mform->get_data()) {
 
             $newid = $DB->insert_record('annopy_annotations', $annotation);
             // Trigger module annotation created event.
-            $event = \mod_annopy\event\annotation_created::create(array(
+            $event = \mod_annopy\event\annotation_created::create([
                 'objectid' => $newid,
-                'context' => $context
-            ));
+                'context' => $context,
+            ]);
             $event->trigger();
 
-            $urlparams = array('id' => $id, 'annotationmode' => 1, 'focusannotation' => $newid);
+            $urlparams = ['id' => $id, 'annotationmode' => 1, 'focusannotation' => $newid];
             $redirecturl = new moodle_url('/mod/annopy/view.php', $urlparams);
 
             redirect($redirecturl, get_string('annotationadded', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);

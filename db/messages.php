@@ -25,12 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array (
-/*     'sendmessages' => array(
+$messageproviders = [
+/*     'sendmessages' => [
         'capability' => 'mod/annopy:sendmessages',
-        'defaults' => array(
+        'defaults' => [
             'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
             'email' => MESSAGE_PERMITTED,
-        ),
-    ), */
-);
+        ],
+    ], */
+];

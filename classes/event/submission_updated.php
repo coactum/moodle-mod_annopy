@@ -66,15 +66,15 @@ class submission_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/annopy/view.php', array(
-            'id' => $this->contextinstanceid
-        ));
+        return new \moodle_url('/mod/annopy/view.php', [
+            'id' => $this->contextinstanceid,
+        ]);
     }
 
     /**
      * Get objectid mapping for restore.
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'annopy_submissions', 'restore' => 'annopy_submission');
+        return ['db' => 'annopy_submissions', 'restore' => 'annopy_submission'];
     }
 }

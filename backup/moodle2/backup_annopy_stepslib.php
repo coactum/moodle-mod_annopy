@@ -41,21 +41,21 @@ class backup_annopy_activity_structure_step extends backup_activity_structure_st
         $userinfo = $this->get_setting_value('userinfo');
 
         // Replace with the attributes and final elements that the element will handle.
-        $annopy = new backup_nested_element('annopy', array('id'), array(
-            'name', 'intro', 'introformat', 'timecreated', 'timemodified'));
+        $annopy = new backup_nested_element('annopy', ['id'], [
+            'name', 'intro', 'introformat', 'timecreated', 'timemodified']);
 
         $annotationtypes = new backup_nested_element('annotationtypes');
-        $annotationtype = new backup_nested_element('annotationtype', array('id'), array(
-            'timecreated', 'timemodified', 'name', 'color', 'priority'));
+        $annotationtype = new backup_nested_element('annotationtype', ['id'], [
+            'timecreated', 'timemodified', 'name', 'color', 'priority']);
 
         $submissions = new backup_nested_element('submissions');
-        $submission = new backup_nested_element('submission', array('id'), array(
-            'author', 'title', 'content', 'currentversion', 'format', 'timecreated', 'timemodified'));
+        $submission = new backup_nested_element('submission', ['id'], [
+            'author', 'title', 'content', 'currentversion', 'format', 'timecreated', 'timemodified']);
 
         $annotations = new backup_nested_element('annotations');
-        $annotation = new backup_nested_element('annotation', array('id'), array(
+        $annotation = new backup_nested_element('annotation', ['id'], [
             'userid', 'timecreated', 'timemodified', 'type', 'startcontainer', 'endcontainer',
-            'startoffset', 'endoffset', 'annotationstart', 'annotationend', 'exact', 'prefix', 'suffix', 'text'));
+            'startoffset', 'endoffset', 'annotationstart', 'annotationend', 'exact', 'prefix', 'suffix', 'text']);
 
         // Build the tree with these elements with $root as the root of the backup tree.
         $annopy->add_child($annotationtypes);
@@ -68,17 +68,17 @@ class backup_annopy_activity_structure_step extends backup_activity_structure_st
         $annotations->add_child($annotation);
 
         // Define the source tables for the elements.
-        $annopy->set_source_table('annopy', array('id' => backup::VAR_ACTIVITYID));
+        $annopy->set_source_table('annopy', ['id' => backup::VAR_ACTIVITYID]);
 
         // Annotation types.
-        $annotationtype->set_source_table('annopy_annotationtypes', array('annopy' => backup::VAR_PARENTID));
+        $annotationtype->set_source_table('annopy_annotationtypes', ['annopy' => backup::VAR_PARENTID]);
 
         if ($userinfo) {
             // Submissions.
-            $submission->set_source_table('annopy_submissions', array('annopy' => backup::VAR_PARENTID));
+            $submission->set_source_table('annopy_submissions', ['annopy' => backup::VAR_PARENTID]);
 
             // Annotations.
-            $annotation->set_source_table('annopy_annotations', array('submission' => backup::VAR_PARENTID));
+            $annotation->set_source_table('annopy_annotations', ['submission' => backup::VAR_PARENTID]);
         }
 
         // Define id annotations.

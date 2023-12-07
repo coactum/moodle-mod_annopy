@@ -41,7 +41,7 @@ class submission extends \core_search\base_mod {
      *
      * @var array Internal quick static cache.
      */
-    protected $entriesdata = array();
+    protected $entriesdata = [];
 
     /**
      * Returns recordset containing required data for indexing AnnoPy entries.
@@ -76,7 +76,7 @@ class submission extends \core_search\base_mod {
      * @param array $options
      * @return \core_search\document
      */
-    public function get_document($submission, $options = array()) {
+    public function get_document($submission, $options = []) {
         /* try {
             $cm = $this->get_cm('annopy', $submission->annopy, $submission->course);
             $context = \context_module::instance($cm->id);
@@ -156,9 +156,9 @@ class submission extends \core_search\base_mod {
         $entryuserid = $doc->get('userid');
         $url = '/mod/annopy/view.php';
 
-        return new \moodle_url($url, array(
+        return new \moodle_url($url, [
             'id' => $contextmodule->instanceid
-        )); */
+        ]); */
     }
 
     /**
@@ -169,9 +169,9 @@ class submission extends \core_search\base_mod {
      */
     public function get_context_url(\core_search\document $doc) {
         /* $contextmodule = \context::instance_by_id($doc->get('contextid'));
-        return new \moodle_url('/mod/annopy/view.php', array(
+        return new \moodle_url('/mod/annopy/view.php', [
             'id' => $contextmodule->instanceid
-        )); */
+        ]); */
     }
 
     /**
@@ -187,6 +187,6 @@ class submission extends \core_search\base_mod {
         /* global $DB;
         return $DB->get_record_sql("SELECT me.*, m.course FROM {annopy_entries} me
                                       JOIN {annopy} m ON m.id = me.annopy
-                                     WHERE me.id = ?", array('id' => $entryid), MUST_EXIST); */
+                                     WHERE me.id = ?", ['id' => $entryid], MUST_EXIST); */
     }
 }

@@ -25,10 +25,4 @@
 defined('MOODLE_INTERNAL') || die();
 
 // List of observers.
-$observers = array(
-    /*
-    'eventname' => '\core\event\course_module_created',
-    'callback' => '\plugintype_pluginname\event\observer\course_module_created::store',
-    'priority' => 1000,
-    */
-);
+$observers = [];

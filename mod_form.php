@@ -47,7 +47,7 @@ class mod_annopy_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('modulename', 'mod_annopy'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('modulename', 'mod_annopy'), ['size' => '64']);
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -91,7 +91,7 @@ class mod_annopy_mod_form extends moodleform_mod {
                     $name .= '<span>' . $type->name . '</span>';
                 }
 
-                $mform->addElement('advcheckbox', 'annotationtypes[' . $id . ']', $name, ' ', array('group' => 1), array(0, 1));
+                $mform->addElement('advcheckbox', 'annotationtypes[' . $id . ']', $name, ' ', ['group' => 1], [0, 1]);
             }
 
         }
@@ -120,8 +120,8 @@ class mod_annopy_mod_form extends moodleform_mod {
         $maxwidth = 80;
 
         if (!$data['annotationareawidth'] || $data['annotationareawidth'] < $minwidth || $data['annotationareawidth'] > $maxwidth) {
-            $errors['annotationareawidth'] = get_string('errannotationareawidthinvalid', 'annopy', array('minwidth' => $minwidth,
-            'maxwidth' => $maxwidth));
+            $errors['annotationareawidth'] = get_string('errannotationareawidthinvalid', 'annopy', ['minwidth' => $minwidth,
+            'maxwidth' => $maxwidth]);
         } */
 
         return $errors;

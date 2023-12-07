@@ -49,7 +49,7 @@ if (!$cm) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 } else if (!$course) {
     throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
-} else if (!$coursesections = $DB->get_record("course_sections", array("id" => $cm->section))) {
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 }
 
@@ -58,10 +58,10 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 // Trigger course_module_viewed event.
-$event = \mod_annopy\event\course_module_viewed::create(array(
+$event = \mod_annopy\event\course_module_viewed::create([
     'objectid' => $moduleinstance->id,
-    'context' => $context
-));
+    'context' => $context,
+]);
 
 $event->add_record_snapshot('course_modules', $cm);
 $event->add_record_snapshot('course', $course);
@@ -74,18 +74,18 @@ if (!$userid && !has_capability('mod/annopy:viewparticipants', $context)) {
 }
 
 // Get the name for this activity.
-$modulename = format_string($moduleinstance->name, true, array(
-    'context' => $context
-));
+$modulename = format_string($moduleinstance->name, true, [
+    'context' => $context,
+]);
 
 // Set $PAGE and completion.
-$PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/annopy/view.php', ['id' => $cm->id]);
 
 $PAGE->navbar->add(get_string("overview", "annopy"));
 
 $PAGE->requires->js_call_amd('mod_annopy/annotations', 'init',
-    array( 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,
-    'focusannotation' => $focusannotation, 'userid' => $userid));
+    [ 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,
+    'focusannotation' => $focusannotation, 'userid' => $userid]);
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
@@ -113,7 +113,7 @@ if ($CFG->branch < 400) {
 echo groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/annopy/view.php?id=$id");
 
 // Get submission for the module.
-$submission = $DB->get_record('annopy_submissions', array('annopy' => $moduleinstance->id));
+$submission = $DB->get_record('annopy_submissions', ['annopy' => $moduleinstance->id]);
 
 // Render and output page.
 $page = new annopy_view($cm, $course, $context, $moduleinstance, $submission, $userid);

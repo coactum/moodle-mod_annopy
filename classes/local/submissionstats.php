@@ -46,7 +46,7 @@ class submissionstats {
 
         $cleantext = preg_replace('#<[^>]+>#', ' ', $submissiontext, -1, $replacementspacescount);
 
-        $submissionstats = array();
+        $submissionstats = [];
         $submissionstats['words'] = self::get_stats_words($cleantext);
         $submissionstats['chars'] = self::get_stats_chars($cleantext) - $replacementspacescount;
         $submissionstats['sentences'] = self::get_stats_sentences($cleantext);

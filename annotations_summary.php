@@ -57,7 +57,7 @@ if (!$cm) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 } else if (!$course) {
     throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
-} else if (!$coursesections = $DB->get_record("course_sections", array("id" => $cm->section))) {
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 }
 
@@ -84,13 +84,13 @@ global $USER;
 if ($addtoannopy && $canaddannotationtype) {
     require_sesskey();
 
-    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', array('id' => $id));
+    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', ['id' => $id]);
 
-    if ($DB->record_exists('annopy_atype_templates', array('id' => $addtoannopy))) {
+    if ($DB->record_exists('annopy_atype_templates', ['id' => $addtoannopy])) {
 
         global $USER;
 
-        $type = $DB->get_record('annopy_atype_templates', array('id' => $addtoannopy));
+        $type = $DB->get_record('annopy_atype_templates', ['id' => $addtoannopy]);
 
         if ($type->defaulttype == 1 || ($type->defaulttype == 0 && $type->userid == $USER->id)) {
 
@@ -115,13 +115,13 @@ if ($addtoannopy && $canaddannotationtype) {
 
 // Change priority.
 if ($caneditannotationtype && $mode == 2 && $priority && $action &&
-    $DB->record_exists('annopy_annotationtypes', array('id' => $priority))) {
+    $DB->record_exists('annopy_annotationtypes', ['id' => $priority])) {
 
     require_sesskey();
 
-    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', array('id' => $id));
+    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', ['id' => $id]);
 
-    $type = $DB->get_record('annopy_annotationtypes', array('annopy' => $moduleinstance->id, 'id' => $priority));
+    $type = $DB->get_record('annopy_annotationtypes', ['annopy' => $moduleinstance->id, 'id' => $priority]);
 
     $oldpriority = 0;
 
@@ -131,7 +131,7 @@ if ($caneditannotationtype && $mode == 2 && $priority && $action &&
         $type->priority -= 1;
 
         $typeswitched = $DB->get_record('annopy_annotationtypes',
-            array('annopy' => $moduleinstance->id, 'priority' => $type->priority));
+            ['annopy' => $moduleinstance->id, 'priority' => $type->priority]);
 
         if (!$typeswitched) { // If no type with priority+1 search for types with hihgher priority values.
             $typeswitched = $DB->get_records_select('annopy_annotationtypes',
@@ -143,13 +143,13 @@ if ($caneditannotationtype && $mode == 2 && $priority && $action &&
         }
 
     } else if ($type && $action == 2 && $type->priority != $DB->count_records('annopy_annotationtypes',
-        array('annopy' => $moduleinstance->id)) + 1) { // Decrease priority (move further back).
+        ['annopy' => $moduleinstance->id]) + 1) { // Decrease priority (move further back).
 
         $oldpriority = $type->priority;
         $type->priority += 1;
 
         $typeswitched = $DB->get_record('annopy_annotationtypes',
-            array('annopy' => $moduleinstance->id, 'priority' => $type->priority));
+            ['annopy' => $moduleinstance->id, 'priority' => $type->priority]);
 
         if (!$typeswitched) { // If no type with priority+1 search for types with higher priority values.
             $typeswitched = $DB->get_records_select('annopy_annotationtypes',
@@ -182,7 +182,7 @@ if ($delete !== 0 && $mode) {
 
     require_sesskey();
 
-    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', array('id' => $id));
+    $redirecturl = new moodle_url('/mod/annopy/annotations_summary.php', ['id' => $id]);
 
     if ($mode == 1) { // If type is template annotation type.
         $table = 'annopy_atype_templates';
@@ -190,16 +190,16 @@ if ($delete !== 0 && $mode) {
         $table = 'annopy_annotationtypes';
     }
 
-    if ($DB->record_exists($table, array('id' => $delete))) {
+    if ($DB->record_exists($table, ['id' => $delete])) {
 
-        $type = $DB->get_record($table, array('id' => $delete));
+        $type = $DB->get_record($table, ['id' => $delete]);
 
         if ($mode == 2 && $candeleteannotationtype ||
             ($type->defaulttype == 1 && has_capability('mod/annopy:managedefaultannotationtypetemplates', $context)
             && $candeleteannotationtypetemplate)
             || ($type->defaulttype == 0 && $type->userid == $USER->id && $candeleteannotationtypetemplate)) {
 
-            $DB->delete_records($table, array('id' => $delete));
+            $DB->delete_records($table, ['id' => $delete]);
             redirect($redirecturl, get_string('annotationtypedeleted', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);
         } else {
             redirect($redirecturl, get_string('notallowedtodothis', 'mod_annopy'), null, notification::NOTIFY_ERROR);
@@ -210,11 +210,11 @@ if ($delete !== 0 && $mode) {
 }
 
 // Get the name for this module instance.
-$modulename = format_string($moduleinstance->name, true, array(
-    'context' => $context
-));
+$modulename = format_string($moduleinstance->name, true, [
+    'context' => $context,
+]);
 
-$PAGE->set_url('/mod/annopy/annotations_summary.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/annopy/annotations_summary.php', ['id' => $cm->id]);
 $PAGE->navbar->add(get_string('annotationssummary', 'mod_annopy'));
 
 $PAGE->set_title(get_string('modulename', 'mod_annopy').': ' . $modulename);
@@ -247,10 +247,10 @@ foreach ($annotationtypes as $i => $type) {
 
     if (has_capability('mod/annopy:viewparticipants', $context)) {
         $annotationtypes[$i]->totalcount = $DB->count_records('annopy_annotations',
-            array('annopy' => $moduleinstance->id, 'type' => $type->id));
+            ['annopy' => $moduleinstance->id, 'type' => $type->id]);
     } else {
         $annotationtypes[$i]->totalcount = $DB->count_records('annopy_annotations',
-            array('annopy' => $moduleinstance->id, 'type' => $type->id, 'userid' => $USER->id));
+            ['annopy' => $moduleinstance->id, 'type' => $type->id, 'userid' => $USER->id]);
     }
 
     $annotationstotalcount += $annotationtypes[$i]->totalcount;

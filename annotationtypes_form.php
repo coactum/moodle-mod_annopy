@@ -92,7 +92,7 @@ class mod_annopy_annotationtypes_form extends moodleform {
      * @return array Array with errors
      */
     public function validation($data, $files) {
-        $errors = array();
+        $errors = [];
 
         if (strlen($data['color']) !== 6 || preg_match("/[^a-fA-F0-9]/", $data['color'])) {
             $errors['color'] = get_string('errnohexcolor', 'mod_annopy');

@@ -45,28 +45,28 @@ class helper {
      */
     public static function annopy_get_editor_and_attachment_options($course, $context) {
         // For the editor.
-        $editoroptions = array(
+        $editoroptions = [
             'trusttext' => true,
             'maxfiles' => EDITOR_UNLIMITED_FILES,
             'maxbytes' => $course->maxbytes,
             'context' => $context,
             'subdirs' => false,
-        );
+        ];
 
         // If maxfiles would be set to an int and more files are given the editor saves them all but
         // saves the overcouting incorrect so that white box is displayed.
 
         // For a file attachments field (not really needed here).
-        $attachmentoptions = array(
+        $attachmentoptions = [
             'subdirs' => false,
             'maxfiles' => 1,
-            'maxbytes' => $course->maxbytes
-        );
+            'maxbytes' => $course->maxbytes,
+        ];
 
-        return array(
+        return [
             $editoroptions,
-            $attachmentoptions
-        );
+            $attachmentoptions,
+        ];
     }
 
     /**
@@ -76,7 +76,7 @@ class helper {
      * @return array action
      */
     public static function get_annotationtypes_for_form($annotationtypes) {
-        $types = array();
+        $types = [];
         $strmanager = get_string_manager();
         foreach ($annotationtypes as $key => $type) {
             if ($strmanager->string_exists($type->name, 'mod_annopy')) {
@@ -120,7 +120,7 @@ class helper {
 
         foreach ($participants as $key => $participant) {
             if (has_capability('mod/annopy:viewparticipants', $context) || $participant->id == $USER->id) {
-                $participants[$key]->annotations = array();
+                $participants[$key]->annotations = [];
                 $participants[$key]->annotationscount = 0;
 
                 foreach ($annotationtypesforform as $i => $type) {
@@ -130,7 +130,7 @@ class helper {
                         WHERE s.annopy = :annopy AND
                             a.userid = :userid AND
                             a.type = :atype";
-                    $params = array('annopy' => $moduleinstance->id, 'userid' => $participant->id, 'atype' => $i);
+                    $params = ['annopy' => $moduleinstance->id, 'userid' => $participant->id, 'atype' => $i];
                     $count = $DB->count_records_sql($sql, $params);
 
                     $participants[$key]->annotations[$i] = $count;
@@ -171,18 +171,18 @@ class helper {
         // Get annotations for submission.
         if ($userid) {
             $submission->annotations = array_values($DB->get_records('annopy_annotations',
-            array('annopy' => $cm->instance, 'submission' => $submission->id, 'userid' => $userid)));
+            ['annopy' => $cm->instance, 'submission' => $submission->id, 'userid' => $userid]));
         } else {
             $submission->annotations = array_values($DB->get_records('annopy_annotations',
-            array('annopy' => $cm->instance, 'submission' => $submission->id)));
+            ['annopy' => $cm->instance, 'submission' => $submission->id]));
         }
         $submission->totalannotationscount = $DB->count_records('annopy_annotations',
-            array('annopy' => $cm->instance, 'submission' => $submission->id));
+            ['annopy' => $cm->instance, 'submission' => $submission->id]);
 
         foreach ($submission->annotations as $key => $annotation) {
 
             // If annotation type does not exist.
-            if (!$DB->record_exists('annopy_annotationtypes', array('id' => $annotation->type))) {
+            if (!$DB->record_exists('annopy_annotationtypes', ['id' => $annotation->type])) {
                 $submission->annotations[$key]->color = 'FFFF00';
                 $submission->annotations[$key]->type = get_string('deletedannotationtype', 'mod_annopy');
             } else {
@@ -203,9 +203,9 @@ class helper {
 
             if ($annotationmode) {
                 // Add annotater images to annotations.
-                $annotater = $DB->get_record('user', array('id' => $annotation->userid));
+                $annotater = $DB->get_record('user', ['id' => $annotation->userid]);
                 $annotaterimage = $OUTPUT->user_picture($annotater,
-                    array('courseid' => $course->id, 'link' => true, 'includefullname' => true, 'size' => 20));
+                    ['courseid' => $course->id, 'link' => true, 'includefullname' => true, 'size' => 20]);
                 $submission->annotations[$key]->userpicturestr = $annotaterimage;
 
             } else {
@@ -231,10 +231,10 @@ class helper {
         if ($annotationmode) {
             // Add annotation form.
             require_once($CFG->dirroot . '/mod/annopy/annotation_form.php');
-            $mform = new mod_annopy_annotation_form(new moodle_url('/mod/annopy/annotations.php', array('id' => $cm->id)),
-                array('types' => self::get_annotationtypes_for_form($annotationtypes)));
+            $mform = new mod_annopy_annotation_form(new moodle_url('/mod/annopy/annotations.php', ['id' => $cm->id]),
+                ['types' => self::get_annotationtypes_for_form($annotationtypes)]);
             // Set default data.
-            $mform->set_data(array('id' => $cm->id, 'submission' => $submission->id));
+            $mform->set_data(['id' => $cm->id, 'submission' => $submission->id]);
 
             $submission->annotationform = $mform->render();
         }
@@ -260,7 +260,7 @@ class helper {
 
         $participants = self::get_annopy_participants($context, $moduleinstance, $annotationtypesforform);
 
-        $pagebar = array();
+        $pagebar = [];
 
         foreach ($participants as $user) {
             $obj = new stdClass();

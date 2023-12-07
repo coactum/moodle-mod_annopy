@@ -57,7 +57,7 @@ class mod_annopy_submit_form extends moodleform {
         $mform->addElement('hidden', 'submissionid', null);
         $mform->setType('submissionid', PARAM_INT);
 
-        $mform->addElement('text', 'title', get_string('title', 'mod_annopy'), array('size' => '64'));
+        $mform->addElement('text', 'title', get_string('title', 'mod_annopy'), ['size' => '64']);
 
         $mform->setType('title', PARAM_TEXT);
 
@@ -80,6 +80,6 @@ class mod_annopy_submit_form extends moodleform {
      * @return array Array with errors
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

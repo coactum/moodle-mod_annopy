@@ -57,12 +57,12 @@ class restore_annopy_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
         // Define the contents (files).
-        // tablename, array(field1, field 2), $mapping.
-        $contents[] = new restore_decode_content('annopy', array('intro'), 'annopy');
-        $contents[] = new restore_decode_content('annopy_submissions', array('content'), 'annopy_submission');
+        // tablename, [field1, field 2], $mapping.
+        $contents[] = new restore_decode_content('annopy', ['intro'], 'annopy');
+        $contents[] = new restore_decode_content('annopy_submissions', ['content'], 'annopy_submission');
 
         return $contents;
     }
@@ -73,12 +73,11 @@ class restore_annopy_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         // Define the rules.
         $rules[] = new restore_decode_rule('ANNOPYINDEX', '/mod/annopy/index.php?id=$1', 'course');
-        $rules[] = new restore_decode_rule('ANNOPYVIEWBYID', '/mod/annopy/view.php?id=$1&userid=$2',
-        array('course_module', 'userid'));
+        $rules[] = new restore_decode_rule('ANNOPYVIEWBYID', '/mod/annopy/view.php?id=$1&userid=$2', ['course_module', 'userid']);
 
         return $rules;
     }
@@ -91,7 +90,7 @@ class restore_annopy_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         // Define the rules to restore the logs (one rule for each event / file in the plugin/event/ folder).
         $rules[] = new restore_log_rule('annopy', 'view', 'view.php?id={course_module}', '{annopy}');
@@ -117,7 +116,7 @@ class restore_annopy_activity_task extends restore_activity_task {
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
     public static function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('annopy', 'view all', 'index.php?id={course}', null);
 

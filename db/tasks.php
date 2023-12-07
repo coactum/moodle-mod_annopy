@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
+$tasks = [
     /* [
         'classname' => 'mod_annopy\task\task',
         'blocking' => 0,
@@ -35,4 +35,4 @@ $tasks = array(
         'month' => '*',
         'dayofweek' => '*',
     ], */
-);
+];

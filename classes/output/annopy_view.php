@@ -88,9 +88,9 @@ class annopy_view implements renderable, templatable {
 
         if ($data->submission) {
             // Set submission author.
-            $data->submission->author = $DB->get_record('user', array('id' => $data->submission->author));
+            $data->submission->author = $DB->get_record('user', ['id' => $data->submission->author]);
             $data->submission->author->userpicture = $OUTPUT->user_picture($data->submission->author,
-                array('courseid' => $this->course->id, 'link' => true, 'includefullname' => true, 'size' => 25));
+                ['courseid' => $this->course->id, 'link' => true, 'includefullname' => true, 'size' => 25]);
 
             // Submission stats.
             $data->submission->stats = submissionstats::get_submission_stats($data->submission->content,

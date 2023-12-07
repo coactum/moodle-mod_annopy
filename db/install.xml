@@ -22,20 +22,6 @@
           <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
         </INDEXES>
       </TABLE>
-      <TABLE NAME="annopy_participants" COMMENT="Table with data of all participants of all plugin instances">
-        <FIELDS>
-          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle id of the user"/>
-          <FIELD NAME="annopy" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the module instance"/>
-        </FIELDS>
-        <KEYS>
-          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-          <KEY NAME="annopy" TYPE="foreign" FIELDS="annopy" REFTABLE="annopy" REFFIELDS="id"/>
-        </KEYS>
-        <INDEXES>
-          <INDEX NAME="annopy" UNIQUE="false" FIELDS="annopy"/>
-        </INDEXES>
-      </TABLE>
       <TABLE NAME="annopy_submissions" COMMENT="Table with all submissions in all plugin instances">
         <FIELDS>
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>

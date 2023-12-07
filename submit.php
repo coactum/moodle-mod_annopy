@@ -51,7 +51,7 @@ if (!$cm) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 } else if (!$course) {
     throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
-} else if (!$coursesections = $DB->get_record("course_sections", array("id" => $cm->section))) {
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
     throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
 }
 
@@ -65,8 +65,8 @@ $data = new stdClass();
 $data->id = $cm->id;
 
 // Get submission that should be edited.
-if ($DB->record_exists('annopy_submissions', array('annopy' => $moduleinstance->id))) {
-    $submission = $DB->get_record('annopy_submissions', array('annopy' => $moduleinstance->id));
+if ($DB->record_exists('annopy_submissions', ['annopy' => $moduleinstance->id])) {
+    $submission = $DB->get_record('annopy_submissions', ['annopy' => $moduleinstance->id]);
 
     // Prevent editing of submissions not started by this user.
     if ($submission->author != $USER->id) {
@@ -102,7 +102,7 @@ $data = file_prepare_standard_filemanager($data, 'attachment', $attachmentoption
     'mod_annopy', 'attachment', $data->submissionid);
 
 // Create form.
-$form = new mod_annopy_submit_form(null, array('editoroptions' => $editoroptions));
+$form = new mod_annopy_submit_form(null, ['editoroptions' => $editoroptions]);
 
 // Set existing data for this submission.
 $form->set_data($data);
@@ -118,7 +118,7 @@ if ($form->is_cancelled()) {
         if ($fromform->submissionid !== 0) { // Update existing submission.
             // Get existing submission.
             $submission = $DB->get_record('annopy_submissions',
-                array('annopy' => $moduleinstance->id, 'id' => $fromform->submissionid));
+                ['annopy' => $moduleinstance->id, 'id' => $fromform->submissionid]);
 
             // Set new version and time modified.
             $submission->currentversion += 1;
@@ -132,10 +132,10 @@ if ($form->is_cancelled()) {
                 'mod_annopy', 'submission', $submission->id);
 
             // Set submission title, content and format.
-            $submission->title = format_text($fromform->title, 1, array('para' => false));
+            $submission->title = format_text($fromform->title, 1, ['para' => false]);
 
             $submission->content = format_text($submissiontext,
-                $fromform->submission_editor['format'], array('para' => false));
+                $fromform->submission_editor['format'], ['para' => false]);
 
             $submission->format = (int) $fromform->submission_editor['format'];
 
@@ -144,22 +144,22 @@ if ($form->is_cancelled()) {
 
             if ($updated) {
                 // Trigger submission updated event.
-                $event = \mod_annopy\event\submission_updated::create(array(
+                $event = \mod_annopy\event\submission_updated::create([
                     'objectid' => $submission->id,
-                    'context' => $context
-                ));
+                    'context' => $context,
+                ]);
                 $event->trigger();
 
-                redirect(new moodle_url('/mod/annopy/view.php', array('id' => $id)),
+                redirect(new moodle_url('/mod/annopy/view.php', ['id' => $id]),
                     get_string('submissionmodified', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);
 
             } else {
-                redirect(new moodle_url('/mod/annopy/view.php', array('id' => $id)),
+                redirect(new moodle_url('/mod/annopy/view.php', ['id' => $id]),
                     get_string('submissionnotmodified', 'mod_annopy'), null, notification::NOTIFY_ERROR);
             }
 
         } else if ($fromform->submissionid === 0) { // New submission.
-            if (!$DB->get_record('annopy_submissions', array('annopy' => $moduleinstance->id))) { // No submission made yet.
+            if (!$DB->get_record('annopy_submissions', ['annopy' => $moduleinstance->id])) { // No submission made yet.
 
                 // Create new submission object.
                 $submission = new stdClass();
@@ -172,7 +172,7 @@ if ($form->is_cancelled()) {
                 $submission->timemodified = null;
 
                 // Set submission title, content and format.
-                $submission->title = format_text($fromform->title, 1, array('para' => false));
+                $submission->title = format_text($fromform->title, 1, ['para' => false]);
                 $submission->content = '';
                 $submission->format = 1;
 
@@ -188,7 +188,7 @@ if ($form->is_cancelled()) {
 
                 // Set submission text and format.
                 $submission->content = format_text($submissiontext,
-                    $fromform->submission_editor['format'], array('para' => false));
+                    $fromform->submission_editor['format'], ['para' => false]);
                 $submission->format = (int) $fromform->submission_editor['format'];
 
                 // Update submission with formatted content.
@@ -196,25 +196,25 @@ if ($form->is_cancelled()) {
 
                 if ($updated) {
                     // Trigger submission created event.
-                    $event = \mod_annopy\event\submission_created::create(array(
+                    $event = \mod_annopy\event\submission_created::create([
                         'objectid' => $submission->id,
-                        'context' => $context
-                    ));
+                        'context' => $context,
+                    ]);
                     $event->trigger();
 
                     redirect(new moodle_url('/mod/annopy/view.php',
-                        array('id' => $id)),
+                        ['id' => $id]),
                         get_string('submissioncreated', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);
 
                 } else {
                     redirect(new moodle_url('/mod/annopy/view.php',
-                        array('id' => $id)),
+                        ['id' => $id]),
                         get_string('submissionnotcreated', 'mod_annopy'), null, notification::NOTIFY_ERROR);
                 }
 
             } else {
                 redirect(new moodle_url('/mod/annopy/view.php',
-                    array('id' => $id)),
+                    ['id' => $id]),
                     get_string('submissionfaileddoubled', 'mod_annopy'), null, notification::NOTIFY_ERROR);
             }
         }
@@ -223,11 +223,11 @@ if ($form->is_cancelled()) {
 }
 
 // Get the name for this activity.
-$modulename = format_string($moduleinstance->name, true, array(
-    'context' => $context
-));
+$modulename = format_string($moduleinstance->name, true, [
+    'context' => $context,
+]);
 
-$PAGE->set_url('/mod/annopy/submit.php', array('id' => $id));
+$PAGE->set_url('/mod/annopy/submit.php', ['id' => $id]);
 $PAGE->navbar->add($title);
 $PAGE->set_title($modulename . ' - ' . $title);
 $PAGE->set_heading($course->fullname);
