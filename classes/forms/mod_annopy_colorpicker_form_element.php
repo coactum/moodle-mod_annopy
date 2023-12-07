@@ -117,8 +117,6 @@ class mod_annopy_colorpicker_form_element extends HTML_QuickForm_text {
                     <div class="form-setting">
                         <div class="form-colourpicker defaultsnext">
                             <div class="admin_colourpicker clearfix">
-                             <img class="icon loadingicon" alt="Loading" title="Loading"
-                                src="' . $CFG->dirroot . '/theme/image.php/boost/core/1693308274/i/loading"/>
                             </div>
                             <input ' . $this->_getAttrString($this->_attributes) . '">
                             <div id="id_error_color" class="form-control-feedback invalid-feedback"></div>

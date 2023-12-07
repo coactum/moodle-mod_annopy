@@ -154,12 +154,11 @@ if ($mform->is_cancelled()) {
         if ($mode == 2) { // If type is annopy annotation type.
 
             if ($annotationtypes) {
-                $priority = $annotationtypes[array_key_last($annotationtypes)]->priority + 1;
+                $annotationtype->priority = $annotationtypes[array_key_last($annotationtypes)]->priority + 1;
             } else {
-                $priority = 1;
+                $annotationtype->priority = 1;
             }
 
-            $annotationtype->priority = $priority;
             $annotationtype->annopy = $moduleinstance->id;
         }
 

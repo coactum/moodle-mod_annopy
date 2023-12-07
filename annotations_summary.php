@@ -93,10 +93,11 @@ if ($addtoannopy && $canaddannotationtype) {
         $type = $DB->get_record('annopy_atype_templates', array('id' => $addtoannopy));
 
         if ($type->defaulttype == 1 || ($type->defaulttype == 0 && $type->userid == $USER->id)) {
+
             if ($annotationtypes) {
-                $priority = $annotationtypes[array_key_last($annotationtypes)]->priority + 1;
+                $type->priority = $annotationtypes[array_key_last($annotationtypes)]->priority + 1;
             } else {
-                $priority = 1;
+                $type->priority = 1;
             }
 
             $type->annopy = $moduleinstance->id;
@@ -124,7 +125,8 @@ if ($caneditannotationtype && $mode == 2 && $priority && $action &&
 
     $oldpriority = 0;
 
-    if ($type && $action == 1 && $type->priority != 1) { // Increase priority (show more in front).
+    // Increase priority (show more in front).
+    if ($type && $action == 1 && $type->priority != $annotationtypes[array_key_first($annotationtypes)]->priority) {
         $oldpriority = $type->priority;
         $type->priority -= 1;
 
