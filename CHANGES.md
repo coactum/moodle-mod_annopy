@@ -1,5 +1,8 @@
 ## Changelog ##
 
+- [0.7]:
+    - Fixed some minor bugs, removed some more unnecessary code and added recent activity overview and plugin description.
+
 - [0.6]:
     - Fix for a bug preventing the change of the priority of annotation types.
     - Ensured compatibility with Moodle 4.3 and PHP 8.2.

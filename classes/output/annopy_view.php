@@ -102,7 +102,8 @@ class annopy_view implements renderable, templatable {
                 get_string_manager(), $annotationtypes, $this->userid, true);
 
             // If submission can be edited.
-            if (has_capability('mod/annopy:editsubmission', $this->context) && !$data->submission->totalannotationscount) {
+            if (has_capability('mod/annopy:editsubmission', $this->context) && !$data->submission->totalannotationscount
+                && (isset($data->submission) && $data->submission->author->id == $USER->id)) {
                 $data->submission->canbeedited = true;
             } else {
                 $data->submission->canbeedited = false;
@@ -110,7 +111,13 @@ class annopy_view implements renderable, templatable {
         }
 
         $data->canaddsubmission = has_capability('mod/annopy:addsubmission', $this->context);
-        $data->caneditsubmission = has_capability('mod/annopy:editsubmission', $this->context);
+
+        if (has_capability('mod/annopy:editsubmission', $this->context)) {
+            $data->caneditsubmission = true;
+        } else {
+            $data->caneditsubmission = false;
+        }
+
         $data->canviewparticipants = has_capability('mod/annopy:viewparticipants', $this->context);
 
         $data->sesskey = sesskey();

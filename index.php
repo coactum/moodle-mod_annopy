@@ -63,7 +63,7 @@ echo $OUTPUT->heading($modulenameplural);
 
 // Build table with all instances.
 $modinfo = get_fast_modinfo($course);
-$moduleinstances = $modinfo->get_instances_of('annopy');
+$moduleinstances = get_all_instances_in_course('annopy', $course);
 
 // Sections.
 $usesections = course_format_uses_sections($course->format);

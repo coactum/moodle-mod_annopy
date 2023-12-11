@@ -73,15 +73,6 @@ function annopy_add_instance($moduleinstance, $mform = null) {
 
     $moduleinstance->id = $DB->insert_record('annopy', $moduleinstance);
 
-    /* // Add calendar dates.
-    helper::annopy_update_calendar($moduleinstance, $moduleinstance->coursemodule);
-
-    // Add expected completion date.
-    if (! empty($moduleinstance->completionexpected)) {
-        \core_completion\api::update_completion_date_event($moduleinstance->coursemodule,
-            'annopy', $moduleinstance->id, $moduleinstance->completionexpected);
-    }*/
-
     if (isset($moduleinstance->annotationtypes) && !empty($moduleinstance->annotationtypes)) {
         // Add annotation types for the module instance.
         $priority = 1;
@@ -119,17 +110,6 @@ function annopy_update_instance($moduleinstance, $mform = null) {
 
     $DB->update_record('annopy', $moduleinstance);
 
-    /* // Update calendar.
-    helper::annopy_update_calendar($moduleinstance, $moduleinstance->coursemodule);
-
-    // Update completion date.
-    $completionexpected = (! empty($moduleinstance->completionexpected)) ? $moduleinstance->completionexpected : null;
-    \core_completion\api::update_completion_date_event($moduleinstance->coursemodule,
-        'annopy', $moduleinstance->id, $completionexpected);
-
-    // Update grade.
-    annopy_grade_item_update($moduleinstance); */
-
     return true;
 }
 
@@ -161,9 +141,6 @@ function annopy_delete_instance($id) {
     // Delete files.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id);
-
-    /* // Update completion for calendar events.
-     \core_completion\api::update_completion_date_event($cm->id, 'annopy', $annopy->id, null); */
 
     // Delete submission.
     $DB->delete_records("annopy_submissions", ["annopy" => $annopy->id]);
@@ -212,12 +189,12 @@ function annopy_user_outline($course, $user, $mod, $annopy) {
  * @return boolean
  */
 function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
-    /* global $CFG, $USER, $DB, $OUTPUT;
+    global $CFG, $USER, $DB, $OUTPUT;
 
     $params = [
         $timestart,
         $course->id,
-        'annopy'
+        'annopy',
     ];
 
     // Moodle branch check.
@@ -228,40 +205,41 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
         $namefields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;;
     }
 
-    $sql = "SELECT e.id, e.timecreated, cm.id AS cmid, $namefields
-              FROM {annopy_entries} e
-              JOIN {annopy} d ON d.id = e.annopy
-              JOIN {course_modules} cm ON cm.instance = d.id
-              JOIN {modules} md ON md.id = cm.module
-              JOIN {user} u ON u.id = e.userid
-             WHERE e.timecreated > ? AND d.course = ? AND md.name = ?
+    $sql = "SELECT aa.id, aa.timecreated, cm.id AS cmid, $namefields
+              FROM {annopy_annotations} aa
+              JOIN {annopy_submissions} s ON s.id = aa.submission
+              JOIN {annopy} a ON a.id = s.annopy
+              JOIN {course_modules} cm ON cm.instance = a.id
+              JOIN {modules} m ON m.id = cm.module
+              JOIN {user} u ON u.id = aa.userid
+             WHERE aa.timecreated > ? AND a.course = ? AND m.name = ?
           ORDER BY timecreated DESC
     ";
 
-    $newentries = $DB->get_records_sql($sql, $params);
+    $newannotations = $DB->get_records_sql($sql, $params);
 
     $modinfo = get_fast_modinfo($course);
 
     $show = [];
 
-    foreach ($newentries as $entry) {
-        if (! array_key_exists($entry->cmid, $modinfo->get_cms())) {
+    foreach ($newannotations as $annotation) {
+        if (! array_key_exists($annotation->cmid, $modinfo->get_cms())) {
             continue;
         }
-        $cm = $modinfo->get_cm($entry->cmid);
+        $cm = $modinfo->get_cm($annotation->cmid);
 
         if (! $cm->uservisible) {
             continue;
         }
-        if ($entry->userid == $USER->id) {
-            $show[] = $entry;
+        if ($annotation->userid == $USER->id) {
+            $show[] = $annotation;
             continue;
         }
-        $context = context_module::instance($entry->cmid);
+        $context = context_module::instance($annotation->cmid);
 
-        $teacher = has_capability('mod/annopy:manageentries', $context);
+        $teacher = has_capability('mod/annopy:viewparticipants', $context);
 
-        // Only teachers can see other students entries.
+        // Only teachers can see other students annotations.
         if (!$teacher) {
             continue;
         }
@@ -278,7 +256,7 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
             if (! $modinfo->get_groups($cm->groupingid)) {
                 continue;
             }
-            $usersgroups = groups_get_all_groups($course->id, $entry->userid, $cm->groupingid);
+            $usersgroups = groups_get_all_groups($course->id, $annotation->userid, $cm->groupingid);
             if (is_array($usersgroups)) {
                 $usersgroups = array_keys($usersgroups);
                 $intersect = array_intersect($usersgroups, $modinfo->get_groups($cm->groupingid));
@@ -287,25 +265,24 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
                 }
             }
         }
-        $show[] = $entry;
+        $show[] = $annotation;
     }
 
     if (empty($show)) {
         return false;
     }
 
-    echo $OUTPUT->heading(get_string('newannopyentries', 'annopy') . ':', 6);
+    echo $OUTPUT->heading(get_string('newannopyannotations', 'annopy') . ':', 6);
 
-    foreach ($show as $entry) {
-        $cm = $modinfo->get_cm($entry->cmid);
-        $context = context_module::instance($entry->cmid);
+    foreach ($show as $annotation) {
+        $cm = $modinfo->get_cm($annotation->cmid);
+        $context = context_module::instance($annotation->cmid);
         $link = $CFG->wwwroot . '/mod/annopy/view.php?id=' . $cm->id;
-        print_recent_activity_note($entry->timecreated, $entry, $cm->name, $link, false, $viewfullnames);
+        print_recent_activity_note($annotation->timecreated, $annotation, $cm->name, $link, false, $viewfullnames);
         echo '<br>';
     }
 
-    return true; */
-    return false; // True if anything was printed, otherwise false.
+    return true;
 }
 
 /**
@@ -333,7 +310,7 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
  */
 function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
 
-    /* global $CFG, $COURSE, $USER, $DB;
+    global $CFG, $COURSE, $USER, $DB;
 
     if ($COURSE->id == $courseid) {
         $course = $COURSE;
@@ -372,35 +349,35 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
         $userfields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;
     }
 
-    $entries = $DB->get_records_sql(
-        'SELECT e.id, e.timecreated, ' . $userfields .
-        '  FROM {annopy_entries} e
-        JOIN {annopy} m ON m.id = e.annopy
-        JOIN {user} u ON u.id = e.userid ' . $groupjoin .
-        '  WHERE e.timecreated > :timestart AND
-            m.id = :cminstance
+    $annotations = $DB->get_records_sql(
+        'SELECT aa.id, aa.timecreated, ' . $userfields .
+        '  FROM {annopy_annotations} aa
+        JOIN {annopy_submissions} s ON s.id = aa.annopy
+        JOIN {annopy} a ON a.id = s.annopy
+        JOIN {user} u ON u.id = aa.userid ' . $groupjoin .
+        '  WHERE aa.timecreated > :timestart AND
+            a.id = :cminstance
             ' . $userselect . ' ' . $groupselect .
-            ' ORDER BY e.timecreated DESC', $params);
+            ' ORDER BY aa.timecreated DESC', $params);
 
-    if (!$entries) {
+    if (!$annotations) {
          return;
     }
 
     $groupmode = groups_get_activity_groupmode($cm, $course);
     $cmcontext = context_module::instance($cm->id);
-    $grader = has_capability('moodle/grade:viewall', $cmcontext);
     $accessallgroups = has_capability('moodle/site:accessallgroups', $cmcontext);
     $viewfullnames = has_capability('moodle/site:viewfullnames', $cmcontext);
-    $teacher = has_capability('mod/annopy:manageentries', $cmcontext);
+    $teacher = has_capability('mod/annopy:viewparticipants', $cmcontext);
 
     $show = [];
-    foreach ($entries as $entry) {
-        if ($entry->userid == $USER->id) {
-            $show[] = $entry;
+    foreach ($annotations as $annotation) {
+        if ($annotation->userid == $USER->id) {
+            $show[] = $annotation;
             continue;
         }
 
-        // Only teachers can see other students entries.
+        // Only teachers can see other students annotations.
         if (!$teacher) {
             continue;
         }
@@ -415,7 +392,7 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
             if (!$modinfo->get_groups($cm->groupingid)) {
                 continue;
             }
-            $usersgroups = groups_get_all_groups($course->id, $entry->userid, $cm->groupingid);
+            $usersgroups = groups_get_all_groups($course->id, $annotation->userid, $cm->groupingid);
             if (is_array($usersgroups)) {
                 $usersgroups = array_keys($usersgroups);
                 $intersect = array_intersect($usersgroups, $modinfo->get_groups($cm->groupingid));
@@ -424,35 +401,23 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
                 }
             }
         }
-        $show[] = $entry;
+        $show[] = $annotation;
     }
 
     if (empty($show)) {
         return;
     }
 
-    if ($grader) {
-        require_once($CFG->libdir.'/gradelib.php');
-        $userids = [];
-        foreach ($show as $id => $entry) {
-            $userids[] = $entry->userid;
-        }
-        $grades = grade_get_grades($courseid, 'mod', 'annopy', $cm->instance, $userids);
-    }
-
     $aname = format_string($cm->name, true);
-    foreach ($show as $entry) {
+    foreach ($show as $annotation) {
         $activity = new stdClass();
 
         $activity->type = 'annopy';
         $activity->cmid = $cm->id;
         $activity->name = $aname;
         $activity->sectionnum = $cm->sectionnum;
-        $activity->timestamp = $entry->timecreated;
+        $activity->timestamp = $annotation->timecreated;
         $activity->user = new stdClass();
-        if ($grader) {
-            $activity->grade = $grades->items[0]->grades[$entry->userid]->str_long_grade;
-        }
 
         if ($CFG->branch < 311) {
             $userfields = explode(',', user_picture::fields());
@@ -463,17 +428,17 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
         foreach ($userfields as $userfield) {
             if ($userfield == 'id') {
                 // Aliased in SQL above.
-                $activity->user->{$userfield} = $entry->userid;
+                $activity->user->{$userfield} = $annotation->userid;
             } else {
-                $activity->user->{$userfield} = $entry->{$userfield};
+                $activity->user->{$userfield} = $annotation->{$userfield};
             }
         }
-        $activity->user->fullname = fullname($entry, $viewfullnames);
+        $activity->user->fullname = fullname($annotation, $viewfullnames);
 
         $activities[$index++] = $activity;
     }
 
-    return; */
+    return;
 }
 
 /**
@@ -504,9 +469,9 @@ function annopy_print_recent_mod_activity($activity, $courseid, $detail, $modnam
         echo '</div>';
     }
 
-    echo '<div class="grade"><strong>';
+    echo '<div class="instance"><strong>';
     echo '<a href="' . $CFG->wwwroot . '/mod/annopy/view.php?id=' . $activity->cmid . '">'
-        . get_string('entryadded', 'mod_annopy') . '</a>';
+        . get_string('annotationadded', 'mod_annopy') . '</a>';
     echo '</strong></div>';
 
     echo '<div class="user">';

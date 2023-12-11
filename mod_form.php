@@ -72,28 +72,33 @@ class mod_annopy_mod_form extends moodleform_mod {
             $select .= " OR userid = " . $USER->id;
             $annotationtypetemplates = (array) $DB->get_records_select('annopy_atype_templates', $select);
 
-            $strmanager = get_string_manager();
+            if ($annotationtypetemplates) {
 
-            $this->add_checkbox_controller(1);
+                $strmanager = get_string_manager();
 
-            foreach ($annotationtypetemplates as $id => $type) {
-                if ($type->defaulttype == 1) {
-                    $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
-                        get_string('standardtype', 'mod_annopy') .'">(S)</span>';
-                } else {
-                    $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
-                        get_string('manualtype', 'mod_annopy') .'">(M)</span>';
+                $this->add_checkbox_controller(1);
+
+                foreach ($annotationtypetemplates as $id => $type) {
+                    if ($type->defaulttype == 1) {
+                        $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
+                            get_string('standardtype', 'mod_annopy') .'">(S)</span>';
+                    } else {
+                        $name = '<span style="margin-right: 10px; background-color: #' . $type->color . '" title="' .
+                            get_string('manualtype', 'mod_annopy') .'">(M)</span>';
+                    }
+
+                    if ($type->defaulttype == 1 && $strmanager->string_exists($type->name, 'mod_annopy')) {
+                        $name .= '<span>' . get_string($type->name, 'mod_annopy') . '</span>';
+                    } else {
+                        $name .= '<span>' . $type->name . '</span>';
+                    }
+
+                    $mform->addElement('advcheckbox', 'annotationtypes[' . $id . ']', $name, ' ', ['group' => 1], [0, 1]);
                 }
-
-                if ($type->defaulttype == 1 && $strmanager->string_exists($type->name, 'mod_annopy')) {
-                    $name .= '<span>' . get_string($type->name, 'mod_annopy') . '</span>';
-                } else {
-                    $name .= '<span>' . $type->name . '</span>';
-                }
-
-                $mform->addElement('advcheckbox', 'annotationtypes[' . $id . ']', $name, ' ', ['group' => 1], [0, 1]);
+            } else {
+                $mform->addElement('static', 'noannotationtypetemplates', '',
+                    get_string('noannotationtypetemplates', 'mod_annopy'));
             }
-
         }
 
         // Add standard grading elements.
@@ -115,14 +120,6 @@ class mod_annopy_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-
-        /* $minwidth = 20;
-        $maxwidth = 80;
-
-        if (!$data['annotationareawidth'] || $data['annotationareawidth'] < $minwidth || $data['annotationareawidth'] > $maxwidth) {
-            $errors['annotationareawidth'] = get_string('errannotationareawidthinvalid', 'annopy', ['minwidth' => $minwidth,
-            'maxwidth' => $maxwidth]);
-        } */
 
         return $errors;
     }

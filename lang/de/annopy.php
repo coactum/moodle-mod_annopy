@@ -30,9 +30,29 @@ $string['pluginname'] = 'AnnoPy';
 
 // Strings for mod_form.php.
 $string['modulename'] = 'AnnoPy';
-$string['modulename_help'] = 'Die Aktivität AnnoPy erlaubt ... ';
+$string['modulename_help'] = 'In der Aktivität AnnoPy können Lehrende unterschiedlichste multimediale Texte hochladen welche die Teilnehmerinnen und Teilnehmer dann annotieren können.
+
+Als kollaboratives Tool kann AnnoPy in zahlreichen schulischen oder universitären Lernkontexten auf verschiedenste Arten eingesetzt werden, um zum Beispiel die literalen Kompetenzen der Teilnehmenden zu fördern oder deren Verständnis eines Textes zu evaluieren.
+
+So kann AnnoPy zum Beispiel in der Sprachdidaktik eingesetzt werden, um das textvergleichende Lesen zu fördern, das Identifizieren sprachlicher Muster in Texten zu üben oder eine neue Perspektive auf erklärende Texte zu eröffnen. AnnoPy kann ebenfalls genutzt werden, um Texte auf inhaltlicher Ebene analysieren zu lassen, etwa im Hinblick auf semantische, grammatische, lexikalische oder textliterarische Fragestellungen. In Fächern wie Mathematik oder Informatik können Lehrkräfte AnnoPy hingegen nutzen, um ihre eigenen Vorlesungsskripte durcharbeiten zu lassen und dann auf einen Blick zu sehen, an welchen Stellen noch Verständnisschwierigkeiten auftreten.
+
+Lehrende können zunächst einen beliebigen multimedialen Text zur Annotation hochladen, dieser kann je nach didaktischem Einsatzkontext auch z.B. Bilder, Formeln oder Programmiercode enthalten.
+Alle Teilnehmenden können diesen Text dann annotieren, indem sie die gewünschten Textstellen markieren und dann für jede Annotation einen Typ auswählen sowie ggf. einen kurzen Kommentar hinterlassen.
+Die verfügbaren Annotationstypen können dabei genau wie wiederverwendbare Vorlagen durch die Lehrenden je nach Kontext flexibel angepasst werden.
+In einer übersichtlich visualisierten Auswertung können Lehrende schließlich sämtliche Annotationen der Teilnehmenden ansehen und detailliert analysieren.
+
+Kernfeatures des Plugins:
+
+* Hochladen verschiedenster Arten multimedialer Texte durch die Lehrenden
+* Separate Annotation dieser Texte inkl. Kommentar durch jeden einzelnen Teilnehmenden
+* Kumulierte sowie nach Teilnehmenden sortierte Anzeige aller Annotationen auf der Übersichtsseite
+* Durch Lehrende individuell anpassbare Annotationstypen sowie -Vorlagen
+* Eine übersichtliche und detaillierte Auswertung aller Annotation
+
+Weitere Informationen zum Konzept hinter AnnoPy und dessen möglichem Einsatz in Unterricht und Lehre finden sich auf Deutsch auf der aktuellen Projektwebseite (https://annopy.de/).';
 $string['modulename_link'] = 'mod/annopy/view';
 $string['pluginadministration'] = 'Administration der AnnoPy-Instanz';
+$string['noannotationtypetemplates'] = 'Bisher sind keine Annotationstypvorlagen vorhanden. Nach dem Erstellen des AnnoPys müssen deshalb noch manuell Annotationstypen angelegt werden.';
 
 // Strings for index.php.
 $string['modulenameplural'] = 'AnnoPys';
@@ -138,6 +158,7 @@ $string['deleteannotationtypes'] = 'Alle Annotationstypen löschen';
 $string['annotationtypesdeleted'] = 'Alle Annotationstypen wurden gelöscht';
 
 // Strings for the recent activity.
+$string['newannopyannotations'] = 'Neue AnnoPy Annotationen';
 
 // Strings for the capabilities.
 $string['annopy:addinstance'] = 'Neue AnnoPy-Instanz hinzufügen';
@@ -162,7 +183,6 @@ $string['annopy:deleteannotationtypetemplate'] = 'Annotationstypvorlage löschen
 $string['annopy:managedefaultannotationtypetemplates'] = 'Standard Annotationstyp-Vorlagen verwalten';
 
 // Strings for the tasks.
-$string['task'] = 'Aufgabe';
 
 // Strings for the messages.
 

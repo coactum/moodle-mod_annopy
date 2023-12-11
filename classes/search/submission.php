@@ -38,35 +38,29 @@ require_once($CFG->dirroot . '/lib/grouplib.php');
 class submission extends \core_search\base_mod {
 
     /**
-     *
-     * @var array Internal quick static cache.
-     */
-    protected $entriesdata = [];
-
-    /**
-     * Returns recordset containing required data for indexing AnnoPy entries.
+     * Returns recordset containing required data for indexing AnnoPy submissions.
      *
      * @param int $modifiedfrom timestamp
      * @param \context|null $context Optional context to restrict scope of returned results
      * @return moodle_recordset|null Recordset (or null if no results)
      */
     public function get_document_recordset($modifiedfrom = 0, \context $context = null) {
-        /* global $DB;
+        global $DB;
 
         list ($contextjoin, $contextparams) = $this->get_context_restriction_sql($context, 'annopy', 'm', SQL_PARAMS_NAMED);
         if ($contextjoin === null) {
             return null;
         }
 
-        $sql = "SELECT me.*, m.course
-                  FROM {annopy_entries} me
-                  JOIN {annopy} m ON m.id = me.annopy
+        $sql = "SELECT s.*, a.course
+                  FROM {annopy_submissions} s
+                  JOIN {annopy} a ON a.id = s.annopy
           $contextjoin
-                 WHERE me.timemodified >= :timemodified
-              ORDER BY me.timemodified ASC";
+                 WHERE s.timemodified >= :timemodified
+              ORDER BY s.timemodified ASC";
         return $DB->get_recordset_sql($sql, array_merge($contextparams, [
-            'timemodified' => $modifiedfrom
-        ])); */
+            'timemodified' => $modifiedfrom,
+        ]));
     }
 
     /**
@@ -77,7 +71,7 @@ class submission extends \core_search\base_mod {
      * @return \core_search\document
      */
     public function get_document($submission, $options = []) {
-        /* try {
+        try {
             $cm = $this->get_cm('annopy', $submission->annopy, $submission->course);
             $context = \context_module::instance($cm->id);
         } catch (\dml_missing_record_exception $ex) {
@@ -95,20 +89,20 @@ class submission extends \core_search\base_mod {
         $doc = \core_search\document_factory::instance($submission->id, $this->componentname, $this->areaname);
         // I am using the submission date (timecreated) for the title.
         $doc->set('title', content_to_text((userdate($submission->timecreated)), $submission->format));
-        $doc->set('content', content_to_text('Entry: ' . $submission->text, $submission->format));
+        $doc->set('content', content_to_text('Submission: ' . $submission->text, $submission->format));
         $doc->set('contextid', $context->id);
         $doc->set('courseid', $submission->course);
-        $doc->set('userid', $submission->userid);
+        $doc->set('userid', $submission->author);
         $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
         $doc->set('modified', $submission->timemodified);
-        $doc->set('description1', content_to_text('Feedback: ' . $submission->feedback, $submission->formatfeedback));
+        $doc->set('description1', '');
 
         // Check if this document should be considered new.
         if (isset($options['lastindexedtime']) && ($options['lastindexedtime'] < $submission->timemodified)) {
             // If the document was created after the last index time, it must be new.
             $doc->set_is_new(true);
         }
-        return $doc; */
+        return $doc;
     }
 
     /**
@@ -120,10 +114,10 @@ class submission extends \core_search\base_mod {
      * @return bool
      */
     public function check_access($id) {
-        /* global $USER;
+        global $USER;
 
         try {
-            $submission = $this->get_entry($id);
+            $submission = $this->get_submission($id);
             $cminfo = $this->get_cm('annopy', $submission->annopy, $submission->course);
         } catch (\dml_missing_record_exception $ex) {
             return \core_search\manager::ACCESS_DELETED;
@@ -135,11 +129,11 @@ class submission extends \core_search\base_mod {
             return \core_search\manager::ACCESS_DENIED;
         }
 
-        if ($submission->userid != $USER->id && ! has_capability('mod/annopy:manageentries', $cminfo->context)) {
+        if ($submission->author != $USER->id && ! has_capability('mod/annopy:viewparticipants', $cminfo->context)) {
             return \core_search\manager::ACCESS_DENIED;
         }
 
-        return \core_search\manager::ACCESS_GRANTED; */
+        return \core_search\manager::ACCESS_GRANTED;
     }
 
     /**
@@ -149,16 +143,16 @@ class submission extends \core_search\base_mod {
      * @return \moodle_url
      */
     public function get_doc_url(\core_search\document $doc) {
-        /* global $USER;
+        global $USER;
 
         $contextmodule = \context::instance_by_id($doc->get('contextid'));
 
-        $entryuserid = $doc->get('userid');
+        $submissionuserid = $doc->get('userid');
         $url = '/mod/annopy/view.php';
 
         return new \moodle_url($url, [
-            'id' => $contextmodule->instanceid
-        ]); */
+            'id' => $contextmodule->instanceid,
+        ]);
     }
 
     /**
@@ -168,10 +162,10 @@ class submission extends \core_search\base_mod {
      * @return \moodle_url
      */
     public function get_context_url(\core_search\document $doc) {
-        /* $contextmodule = \context::instance_by_id($doc->get('contextid'));
+        $contextmodule = \context::instance_by_id($doc->get('contextid'));
         return new \moodle_url('/mod/annopy/view.php', [
-            'id' => $contextmodule->instanceid
-        ]); */
+            'id' => $contextmodule->instanceid,
+        ]);
     }
 
     /**
@@ -180,13 +174,13 @@ class submission extends \core_search\base_mod {
      * Store minimal information as this might grow.
      *
      * @throws \dml_exception
-     * @param int $entryid
+     * @param int $submissionid
      * @return stdClass
      */
-    protected function get_entry($entryid) {
-        /* global $DB;
-        return $DB->get_record_sql("SELECT me.*, m.course FROM {annopy_entries} me
-                                      JOIN {annopy} m ON m.id = me.annopy
-                                     WHERE me.id = ?", ['id' => $entryid], MUST_EXIST); */
+    protected function get_submission($submissionid) {
+        global $DB;
+        return $DB->get_record_sql("SELECT s.*, a.course FROM {annopy_submissions} s
+                                      JOIN {annopy} a ON a.id = s.annopy
+                                     WHERE s.id = ?", ['id' => $submissionid], MUST_EXIST);
     }
 }
