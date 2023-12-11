@@ -23,6 +23,8 @@
  */
 namespace mod_annopy\output;
 
+use mod_annopy\local\submissionstats;
+use mod_annopy\local\helper;
 use renderable;
 use renderer_base;
 use templatable;
@@ -37,15 +39,35 @@ use stdClass;
  */
 class annopy_view implements renderable, templatable {
 
+    /** @var object */
+    protected $cm;
+    /** @var object */
+    protected $course;
+    /** @var object */
+    protected $context;
+    /** @var object */
+    protected $moduleinstance;
+    /** @var object */
+    protected $submission;
     /** @var int */
-    protected $cmid;
+    protected $userid;
 
     /**
      * Construct this renderable.
-     * @param int $cmid The course module id
+     * @param object $cm The course module
+     * @param object $course The course
+     * @param object $context The context
+     * @param object $moduleinstance The module instance
+     * @param object $submission The submission
+     * @param int $userid The ID of the user whose annotations should be shown
      */
-    public function __construct($cmid) {
-        $this->cmid = $cmid;
+    public function __construct($cm, $course, $context, $moduleinstance, $submission, $userid) {
+        $this->cm = $cm;
+        $this->course = $course;
+        $this->context = $context;
+        $this->moduleinstance = $moduleinstance;
+        $this->submission = $submission;
+        $this->userid = $userid;
     }
 
     /**
@@ -55,8 +77,53 @@ class annopy_view implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output) {
+        global $DB, $USER, $OUTPUT;
+
         $data = new stdClass();
-        $data->cmid = $this->cmid;
+        $data->cmid = $this->cm->id;
+        $data->submission = $this->submission;
+
+        $select = "annopy = " . $this->cm->instance;
+        $annotationtypes = (array) $DB->get_records_select('annopy_annotationtypes', $select, null, 'priority ASC');
+
+        if ($data->submission) {
+            // Set submission author.
+            $data->submission->author = $DB->get_record('user', ['id' => $data->submission->author]);
+            $data->submission->author->userpicture = $OUTPUT->user_picture($data->submission->author,
+                ['courseid' => $this->course->id, 'link' => true, 'includefullname' => true, 'size' => 25]);
+
+            // Submission stats.
+            $data->submission->stats = submissionstats::get_submission_stats($data->submission->content,
+                $data->submission->timecreated);
+            $data->submission->canviewdetails = has_capability('mod/annopy:addsubmission', $this->context);
+
+            // Prepare annotations.
+            $data->submission = helper::prepare_annotations($this->cm, $this->course, $this->context, $data->submission,
+                get_string_manager(), $annotationtypes, $this->userid, true);
+
+            // If submission can be edited.
+            if (has_capability('mod/annopy:editsubmission', $this->context) && !$data->submission->totalannotationscount
+                && (isset($data->submission) && $data->submission->author->id == $USER->id)) {
+                $data->submission->canbeedited = true;
+            } else {
+                $data->submission->canbeedited = false;
+            }
+        }
+
+        $data->canaddsubmission = has_capability('mod/annopy:addsubmission', $this->context);
+
+        if (has_capability('mod/annopy:editsubmission', $this->context)) {
+            $data->caneditsubmission = true;
+        } else {
+            $data->caneditsubmission = false;
+        }
+
+        $data->canviewparticipants = has_capability('mod/annopy:viewparticipants', $this->context);
+
+        $data->sesskey = sesskey();
+        $data->pagebar = helper::get_pagebar($this->context, $this->userid, $this->submission, $this->moduleinstance,
+            helper::get_annotationtypes_for_form($annotationtypes));
+
         return $data;
     }
 }

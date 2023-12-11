@@ -28,7 +28,7 @@ require_once(__DIR__.'/lib.php');
 $id = required_param('id', PARAM_INT); // ID of the course.
 
 if ($id) {
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
+    if (!$course = $DB->get_record('course', ['id' => $id])) {
         throw new moodle_exception('invalidcourseid');
     }
 } else {
@@ -40,9 +40,9 @@ require_course_login($course);
 $coursecontext = context_course::instance($course->id);
 
 // Trigger course_module_instance_list_viewed event.
-$event = \mod_annopy\event\course_module_instance_list_viewed::create(array(
-    'context' => $coursecontext
-));
+$event = \mod_annopy\event\course_module_instance_list_viewed::create([
+    'context' => $coursecontext,
+]);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
@@ -51,7 +51,7 @@ $modulenameplural = get_string('modulenameplural', 'mod_annopy');
 
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/annopy/index.php', array('id' => $id));
+$PAGE->set_url('/mod/annopy/index.php', ['id' => $id]);
 
 $PAGE->navbar->add($modulenameplural);
 
@@ -63,7 +63,7 @@ echo $OUTPUT->heading($modulenameplural);
 
 // Build table with all instances.
 $modinfo = get_fast_modinfo($course);
-$moduleinstances = $modinfo->get_instances_of('annopy');
+$moduleinstances = get_all_instances_in_course('annopy', $course);
 
 // Sections.
 $usesections = course_format_uses_sections($course->format);
@@ -72,12 +72,12 @@ if ($usesections) {
 }
 
 if (empty($moduleinstances)) {
-    notice(get_string('nonewmodules', 'mod_annopy'), new moodle_url('/course/view.php', array('id' => $course->id)));
+    notice(get_string('nonewmodules', 'mod_annopy'), new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 
 $table = new html_table();
-$table->head = array();
-$table->align = array();
+$table->head = [];
+$table->align = [];
 if ($usesections) {
     // Add column heading based on the course format. e.g. Week, Topic.
     $table->head[] = get_string('sectionname', 'format_' . $course->format);
@@ -113,9 +113,9 @@ foreach ($moduleinstances as $annopy) {
     }
 
     // Link.
-    $annopyname = format_string($annopy->name, true, array(
-        'context' => $context
-    ));
+    $annopyname = format_string($annopy->name, true, [
+        'context' => $context,
+    ]);
     if (! $annopy->visible) {
         // Show dimmed if the mod is hidden.
         $table->data[$i][] = "<a class=\"dimmed\" href=\"view.php?id=$annopy->coursemodule\">" . $annopyname . "</a>";

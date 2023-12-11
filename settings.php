@@ -26,16 +26,4 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('mod_annopy_settings', new lang_string('pluginname', 'mod_annopy'));
-
-    /* if ($ADMIN->fulltree) {
-        // TODO: Define actual plugin settings page and add it to the tree - {@link https://docs.moodle.org/dev/Admin_settings}.
-        $settings->add(new admin_setting_heading('annopy/editability', get_string('editability', 'annopy'), ''));
-        $settings->add(new admin_setting_configselect('annopy/defaultannotationstyletemplateseditable',
-            get_string('settingsdesciption', 'annopy'),
-            get_string('settingsdesciption_help', 'annopy'), 1, array(
-            '0' => get_string('no'),
-            '1' => get_string('yes')
-        )));
-
-    } */
 }

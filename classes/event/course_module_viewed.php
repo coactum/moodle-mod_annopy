@@ -46,6 +46,6 @@ class course_module_viewed extends \core\event\course_module_viewed {
      * Get objectid mapping for restore.
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'annopy', 'restore' => 'annopy');
+        return ['db' => 'annopy', 'restore' => 'annopy'];
     }
 }

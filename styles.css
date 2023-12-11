@@ -23,15 +23,183 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
-/*
-.path-mod-annopy .div {
+.path-mod-annopy .details {
     margin: 5px;
+    padding-top: 10px;
     text-align: center;
+    font-size: 0.7em;
+
+    border-top: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.path-mod-annopy .submissionsheader {
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.path-mod-annopy .submissionsheader h4 {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.path-mod-annopy .submissionfooter {
+    width: 100%;
+}
+
+.path-mod-annopy .submission {
+    text-align: left;
+    font-size: 1em;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.path-mod-annopy .annotationsheader {
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.path-mod-annopy .annotationsheader h4 {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.path-mod-annopy .annotationarea {
+    text-align: left;
+    font-size: 1em;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.path-mod-annopy .annotated,
+.path-mod-annopy .annotated_temp {
+    background-color: yellow;
+    cursor: pointer;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.path-mod-annopy .hovered .annotated,
+.path-mod-annopy .hovered .annotated_temp {
+    background: none;
+}
+
+.path-mod-annopy .annotated:hover,
+.path-mod-annopy .annotated_temp:hover,
+.path-mod-annopy .textbackground.hovered,
+.path-mod-annopy .annotationtypeheader .hovered {
+    background-color: lightblue;
+}
+
+.path-mod-annopy .annotation-box {
+    border: 1px solid #dbdbdb;
+    border-radius: 2px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+
+.path-mod-annopy .annotation-box:hover {
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, .15);
+}
+
+.path-mod-annopy #id_submitbutton {
+    margin-right: 5px;
+}
+
+.path-mod-annopy textarea {
+    width: 100%;
+}
+
+.path-mod-annopy-annotations_summary th {
+    min-width: 135px;
+}
+
+.path-mod-annopy .annotatedtextpreviewdiv {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.path-mod-annopy .annotationauthor {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 10px;
+}
+
+.path-mod-annopy .annotatedtextpreview {
+    border-left: 5px solid yellow;
+    padding-left: 5px;
+    background-color: white;
+    display: inline-block;
+    width: 100%;
+}
+
+.path-mod-annopy .annopy-btn-round-small {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    padding: 0;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.path-mod-annopy .annotation-form {
+    display: none;
+}
+
+.path-mod-annopy #overlay {
+    position: fixed; /* Sit on bottom of the display */
+    height: 50px;
+    width: 100%;
+    left: 0%;
+    bottom: 0%;
+    opacity: 0.9;
+    z-index: 2;
+}
+
+.path-mod-annopy #overlaytext {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 5px;
+    font-weight: bold;
+    color: darkred;
+    background: white;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+.path-mod-annopy .annotationareawidth,
+.path-mod-annopy .submissionareawidth {
+    width: 50%;
+}
+
+.path-mod-annopy .submissionbackground {
+    background-color: rgba(2, 49, 83, 0.07);
+}
+
+.path-mod-annopy .textbackground {
+    background-color: white;
 }
 
 @media print {
-    .path-mod-annopy .div {
-        display: none;
+    .path-mod-annopy #page,
+    .path-mod-annopy #page.drawers,
+    .path-mod-annopy #page.drawers .main-inner {
+        margin-top: 0;
     }
 }
- */

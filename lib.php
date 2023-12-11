@@ -27,10 +27,6 @@
  *
  * @uses FEATURE_MOD_INTRO
  * @uses FEATURE_SHOW_DESCRIPTION
- * @uses FEATURE_GRADE_HAS_GRADE
- * @uses FEATURE_RATE
- * @uses FEATURE_GROUPS
- * @uses FEATURE_GROUPINGS
  * @uses FEATURE_COMPLETION_TRACKS_VIEWS
  * @uses FEATURE__BACKUP_MOODLE2
  * @param string $feature Constant for requested feature.
@@ -47,10 +43,6 @@ function annopy_supports($feature) {
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
-            return true;
-        case FEATURE_GROUPS:
-            return true;
-        case FEATURE_GROUPINGS:
             return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return true;
@@ -77,30 +69,25 @@ function annopy_supports($feature) {
 function annopy_add_instance($moduleinstance, $mform = null) {
     global $DB;
 
-    // Handle access time for grading.
-    /* if (empty($moduleinstance->assessed)) {
-        $moduleinstance->assessed = 0;
-    }
-
-    if (empty($moduleinstance->ratingtime) || empty($moduleinstance->assessed)) {
-        $moduleinstance->assesstimestart = 0;
-        $moduleinstance->assesstimefinish = 0;
-    } */
-
     $moduleinstance->timecreated = time();
 
     $moduleinstance->id = $DB->insert_record('annopy', $moduleinstance);
 
-    /* // Add calendar dates.
-    helper::annopy_update_calendar($moduleinstance, $moduleinstance->coursemodule);
+    if (isset($moduleinstance->annotationtypes) && !empty($moduleinstance->annotationtypes)) {
+        // Add annotation types for the module instance.
+        $priority = 1;
+        foreach ($moduleinstance->annotationtypes as $id => $checked) {
+            if ($checked) {
+                $type = $DB->get_record('annopy_atype_templates', ['id' => $id]);
+                $type->annopy = $moduleinstance->id;
+                $type->priority = $priority;
 
-    // Add expected completion date.
-    if (! empty($moduleinstance->completionexpected)) {
-        \core_completion\api::update_completion_date_event($moduleinstance->coursemodule,
-            'annopy', $moduleinstance->id, $moduleinstance->completionexpected);
+                $priority += 1;
+
+                $DB->insert_record('annopy_annotationtypes', $type);
+            }
+        }
     }
-
-    annopy_grade_item_update($moduleinstance); */
 
     return $moduleinstance->id;
 }
@@ -121,53 +108,7 @@ function annopy_update_instance($moduleinstance, $mform = null) {
     $moduleinstance->timemodified = time();
     $moduleinstance->id = $moduleinstance->instance;
 
-    /* if (empty($moduleinstance->assessed)) {
-        $moduleinstance->assessed = 0;
-    }
-
-    if (empty($moduleinstance->ratingtime) || empty($moduleinstance->assessed)) {
-        $moduleinstance->assesstimestart = 0;
-        $moduleinstance->assesstimefinish = 0;
-    }
-
-    if (empty($moduleinstance->notification)) {
-        $moduleinstance->notification = 0;
-    }
-
-    // If the aggregation type or scale (i.e. max grade) changes then recalculate the grades for the entire moduleinstance
-    // if scale changes - do we need to recheck the ratings, if ratings higher than scale how do we want to respond?
-    // for count and sum aggregation types the grade we check to make sure they do not exceed the scale (i.e. max score)
-    // when calculating the grade.
-    $oldmoduleinstance = $DB->get_record('annopy', array('id' => $moduleinstance->id));
-
-    $updategrades = false;
-
-    if ($oldmoduleinstance->assessed <> $moduleinstance->assessed) {
-        // Whether this moduleinstance is rated.
-        $updategrades = true;
-    }
-
-    if ($oldmoduleinstance->scale <> $moduleinstance->scale) {
-        // The scale currently in use.
-        $updategrades = true;
-    }
-
-    if ($updategrades) {
-        annopy_update_grades($moduleinstance); // Recalculate grades for the moduleinstance.
-    } */
-
     $DB->update_record('annopy', $moduleinstance);
-
-    /* // Update calendar.
-    helper::annopy_update_calendar($moduleinstance, $moduleinstance->coursemodule);
-
-    // Update completion date.
-    $completionexpected = (! empty($moduleinstance->completionexpected)) ? $moduleinstance->completionexpected : null;
-    \core_completion\api::update_completion_date_event($moduleinstance->coursemodule,
-        'annopy', $moduleinstance->id, $completionexpected);
-
-    // Update grade.
-    annopy_grade_item_update($moduleinstance); */
 
     return true;
 }
@@ -185,41 +126,38 @@ function annopy_update_instance($moduleinstance, $mform = null) {
 function annopy_delete_instance($id) {
     global $DB;
 
-    if (!$annopy = $DB->get_record('annopy', array('id' => $id))) {
+    if (!$annopy = $DB->get_record('annopy', ['id' => $id])) {
         return false;
     }
     if (!$cm = get_coursemodule_from_instance('annopy', $annopy->id)) {
         return false;
     }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+    if (!$course = $DB->get_record('course', ['id' => $cm->course])) {
         return false;
     }
 
-    /*
     $context = context_module::instance($cm->id);
 
     // Delete files.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id);
 
-    // Update completion for calendar events.
-    \core_completion\api::update_completion_date_event($cm->id, 'annopy', $annopy->id, null);
+    // Delete submission.
+    $DB->delete_records("annopy_submissions", ["annopy" => $annopy->id]);
 
-    // Delete grades.
-    annopy_grade_item_delete($annopy);
-    */
+    // Delete annotations.
+    $DB->delete_records("annopy_annotations", ["annopy" => $annopy->id]);
 
-    // Delete other db tables.
-    // ...
+    // Delete annotation types for the module instance.
+    $DB->delete_records("annopy_annotationtypes", ["annopy" => $annopy->id]);
 
-    // Delete annopy, else return false.
-    if (!$DB->delete_records("annopy", array("id" => $annopy->id))) {
+    // Delete module instance, else return false.
+    if (!$DB->delete_records("annopy", ["id" => $annopy->id])) {
         return false;
     }
 
     return true;
 }
-
 
 /**
  * Returns a small object with summary information about what a
@@ -251,13 +189,13 @@ function annopy_user_outline($course, $user, $mod, $annopy) {
  * @return boolean
  */
 function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
-    /* global $CFG, $USER, $DB, $OUTPUT;
+    global $CFG, $USER, $DB, $OUTPUT;
 
-    $params = array(
+    $params = [
         $timestart,
         $course->id,
-        'annopy'
-    );
+        'annopy',
+    ];
 
     // Moodle branch check.
     if ($CFG->branch < 311) {
@@ -267,40 +205,41 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
         $namefields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;;
     }
 
-    $sql = "SELECT e.id, e.timecreated, cm.id AS cmid, $namefields
-              FROM {annopy_entries} e
-              JOIN {annopy} d ON d.id = e.annopy
-              JOIN {course_modules} cm ON cm.instance = d.id
-              JOIN {modules} md ON md.id = cm.module
-              JOIN {user} u ON u.id = e.userid
-             WHERE e.timecreated > ? AND d.course = ? AND md.name = ?
+    $sql = "SELECT aa.id, aa.timecreated, cm.id AS cmid, $namefields
+              FROM {annopy_annotations} aa
+              JOIN {annopy_submissions} s ON s.id = aa.submission
+              JOIN {annopy} a ON a.id = s.annopy
+              JOIN {course_modules} cm ON cm.instance = a.id
+              JOIN {modules} m ON m.id = cm.module
+              JOIN {user} u ON u.id = aa.userid
+             WHERE aa.timecreated > ? AND a.course = ? AND m.name = ?
           ORDER BY timecreated DESC
     ";
 
-    $newentries = $DB->get_records_sql($sql, $params);
+    $newannotations = $DB->get_records_sql($sql, $params);
 
     $modinfo = get_fast_modinfo($course);
 
-    $show = array();
+    $show = [];
 
-    foreach ($newentries as $entry) {
-        if (! array_key_exists($entry->cmid, $modinfo->get_cms())) {
+    foreach ($newannotations as $annotation) {
+        if (! array_key_exists($annotation->cmid, $modinfo->get_cms())) {
             continue;
         }
-        $cm = $modinfo->get_cm($entry->cmid);
+        $cm = $modinfo->get_cm($annotation->cmid);
 
         if (! $cm->uservisible) {
             continue;
         }
-        if ($entry->userid == $USER->id) {
-            $show[] = $entry;
+        if ($annotation->userid == $USER->id) {
+            $show[] = $annotation;
             continue;
         }
-        $context = context_module::instance($entry->cmid);
+        $context = context_module::instance($annotation->cmid);
 
-        $teacher = has_capability('mod/annopy:manageentries', $context);
+        $teacher = has_capability('mod/annopy:viewparticipants', $context);
 
-        // Only teachers can see other students entries.
+        // Only teachers can see other students annotations.
         if (!$teacher) {
             continue;
         }
@@ -317,7 +256,7 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
             if (! $modinfo->get_groups($cm->groupingid)) {
                 continue;
             }
-            $usersgroups = groups_get_all_groups($course->id, $entry->userid, $cm->groupingid);
+            $usersgroups = groups_get_all_groups($course->id, $annotation->userid, $cm->groupingid);
             if (is_array($usersgroups)) {
                 $usersgroups = array_keys($usersgroups);
                 $intersect = array_intersect($usersgroups, $modinfo->get_groups($cm->groupingid));
@@ -326,25 +265,24 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
                 }
             }
         }
-        $show[] = $entry;
+        $show[] = $annotation;
     }
 
     if (empty($show)) {
         return false;
     }
 
-    echo $OUTPUT->heading(get_string('newannopyentries', 'annopy') . ':', 6);
+    echo $OUTPUT->heading(get_string('newannopyannotations', 'annopy') . ':', 6);
 
-    foreach ($show as $entry) {
-        $cm = $modinfo->get_cm($entry->cmid);
-        $context = context_module::instance($entry->cmid);
+    foreach ($show as $annotation) {
+        $cm = $modinfo->get_cm($annotation->cmid);
+        $context = context_module::instance($annotation->cmid);
         $link = $CFG->wwwroot . '/mod/annopy/view.php?id=' . $cm->id;
-        print_recent_activity_note($entry->timecreated, $entry, $cm->name, $link, false, $viewfullnames);
+        print_recent_activity_note($annotation->timecreated, $annotation, $cm->name, $link, false, $viewfullnames);
         echo '<br>';
     }
 
-    return true; */
-    return false; // True if anything was printed, otherwise false.
+    return true;
 }
 
 /**
@@ -372,18 +310,18 @@ function annopy_print_recent_activity($course, $viewfullnames, $timestart) {
  */
 function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
 
-    /* global $CFG, $COURSE, $USER, $DB;
+    global $CFG, $COURSE, $USER, $DB;
 
     if ($COURSE->id == $courseid) {
         $course = $COURSE;
     } else {
-        $course = $DB->get_record('course', array('id' => $courseid));
+        $course = $DB->get_record('course', ['id' => $courseid]);
     }
 
     $modinfo = get_fast_modinfo($course);
 
     $cm = $modinfo->get_cm($cmid);
-    $params = array();
+    $params = [];
     if ($userid) {
         $userselect = 'AND u.id = :userid';
         $params['userid'] = $userid;
@@ -411,35 +349,35 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
         $userfields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;
     }
 
-    $entries = $DB->get_records_sql(
-        'SELECT e.id, e.timecreated, ' . $userfields .
-        '  FROM {annopy_entries} e
-        JOIN {annopy} m ON m.id = e.annopy
-        JOIN {user} u ON u.id = e.userid ' . $groupjoin .
-        '  WHERE e.timecreated > :timestart AND
-            m.id = :cminstance
+    $annotations = $DB->get_records_sql(
+        'SELECT aa.id, aa.timecreated, ' . $userfields .
+        '  FROM {annopy_annotations} aa
+        JOIN {annopy_submissions} s ON s.id = aa.annopy
+        JOIN {annopy} a ON a.id = s.annopy
+        JOIN {user} u ON u.id = aa.userid ' . $groupjoin .
+        '  WHERE aa.timecreated > :timestart AND
+            a.id = :cminstance
             ' . $userselect . ' ' . $groupselect .
-            ' ORDER BY e.timecreated DESC', $params);
+            ' ORDER BY aa.timecreated DESC', $params);
 
-    if (!$entries) {
+    if (!$annotations) {
          return;
     }
 
     $groupmode = groups_get_activity_groupmode($cm, $course);
     $cmcontext = context_module::instance($cm->id);
-    $grader = has_capability('moodle/grade:viewall', $cmcontext);
     $accessallgroups = has_capability('moodle/site:accessallgroups', $cmcontext);
     $viewfullnames = has_capability('moodle/site:viewfullnames', $cmcontext);
-    $teacher = has_capability('mod/annopy:manageentries', $cmcontext);
+    $teacher = has_capability('mod/annopy:viewparticipants', $cmcontext);
 
-    $show = array();
-    foreach ($entries as $entry) {
-        if ($entry->userid == $USER->id) {
-            $show[] = $entry;
+    $show = [];
+    foreach ($annotations as $annotation) {
+        if ($annotation->userid == $USER->id) {
+            $show[] = $annotation;
             continue;
         }
 
-        // Only teachers can see other students entries.
+        // Only teachers can see other students annotations.
         if (!$teacher) {
             continue;
         }
@@ -454,7 +392,7 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
             if (!$modinfo->get_groups($cm->groupingid)) {
                 continue;
             }
-            $usersgroups = groups_get_all_groups($course->id, $entry->userid, $cm->groupingid);
+            $usersgroups = groups_get_all_groups($course->id, $annotation->userid, $cm->groupingid);
             if (is_array($usersgroups)) {
                 $usersgroups = array_keys($usersgroups);
                 $intersect = array_intersect($usersgroups, $modinfo->get_groups($cm->groupingid));
@@ -463,35 +401,23 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
                 }
             }
         }
-        $show[] = $entry;
+        $show[] = $annotation;
     }
 
     if (empty($show)) {
         return;
     }
 
-    if ($grader) {
-        require_once($CFG->libdir.'/gradelib.php');
-        $userids = array();
-        foreach ($show as $id => $entry) {
-            $userids[] = $entry->userid;
-        }
-        $grades = grade_get_grades($courseid, 'mod', 'annopy', $cm->instance, $userids);
-    }
-
     $aname = format_string($cm->name, true);
-    foreach ($show as $entry) {
+    foreach ($show as $annotation) {
         $activity = new stdClass();
 
         $activity->type = 'annopy';
         $activity->cmid = $cm->id;
         $activity->name = $aname;
         $activity->sectionnum = $cm->sectionnum;
-        $activity->timestamp = $entry->timecreated;
+        $activity->timestamp = $annotation->timecreated;
         $activity->user = new stdClass();
-        if ($grader) {
-            $activity->grade = $grades->items[0]->grades[$entry->userid]->str_long_grade;
-        }
 
         if ($CFG->branch < 311) {
             $userfields = explode(',', user_picture::fields());
@@ -502,17 +428,17 @@ function annopy_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
         foreach ($userfields as $userfield) {
             if ($userfield == 'id') {
                 // Aliased in SQL above.
-                $activity->user->{$userfield} = $entry->userid;
+                $activity->user->{$userfield} = $annotation->userid;
             } else {
-                $activity->user->{$userfield} = $entry->{$userfield};
+                $activity->user->{$userfield} = $annotation->{$userfield};
             }
         }
-        $activity->user->fullname = fullname($entry, $viewfullnames);
+        $activity->user->fullname = fullname($annotation, $viewfullnames);
 
         $activities[$index++] = $activity;
     }
 
-    return; */
+    return;
 }
 
 /**
@@ -543,9 +469,9 @@ function annopy_print_recent_mod_activity($activity, $courseid, $detail, $modnam
         echo '</div>';
     }
 
-    echo '<div class="grade"><strong>';
+    echo '<div class="instance"><strong>';
     echo '<a href="' . $CFG->wwwroot . '/mod/annopy/view.php?id=' . $activity->cmid . '">'
-        . get_string('entryadded', 'mod_annopy') . '</a>';
+        . get_string('annotationadded', 'mod_annopy') . '</a>';
     echo '</strong></div>';
 
     echo '<div class="user">';
@@ -565,7 +491,17 @@ function annopy_print_recent_mod_activity($activity, $courseid, $detail, $modnam
 function annopy_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'annopyheader', get_string('modulenameplural', 'mod_annopy'));
 
+    $mform->addElement('checkbox', 'reset_annopy_annotations', get_string('deleteannotations', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_annotations', 'reset_annopy_all', 'checked');
+
+    $mform->addElement('checkbox', 'reset_annopy_submissionandfiles', get_string('deletesubmissionandfiles', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_submissionandfiles', 'reset_annopy_all', 'checked');
+
+    $mform->addElement('checkbox', 'reset_annopy_annotationtypes', get_string('deleteannotationtypes', 'mod_annopy'));
+    $mform->disabledIf('reset_annopy_annotationtypes', 'reset_annopy_all', 'checked');
+
     $mform->addElement('checkbox', 'reset_annopy_all', get_string('deletealluserdata', 'mod_annopy'));
+
 }
 
 /**
@@ -575,12 +511,13 @@ function annopy_reset_course_form_definition(&$mform) {
  * @return array
  */
 function annopy_reset_course_form_defaults($course) {
-    return array('reset_annopy_all' => 1);
+    return ['reset_annopy_annotations' => 0, 'reset_annopy_submissionandfiles' => 0,
+        'reset_annopy_annotationtypes' => 0, 'reset_annopy_all' => 1];
 }
 
 /**
  * This function is used by the reset_course_userdata function in moodlelib.
- * This function will remove all userdata from the specified annopy.
+ * This function will remove all userdata from the specified module.
  *
  * @param object $data The data submitted from the reset course.
  * @return array status array
@@ -589,224 +526,82 @@ function annopy_reset_userdata($data) {
     global $CFG, $DB;
 
     require_once($CFG->libdir . '/filelib.php');
-    require_once($CFG->dirroot . '/rating/lib.php');
 
-    $componentstr = get_string('modulenameplural', 'annopy');
-    $status = array();
+    $modulenameplural = get_string('modulenameplural', 'annopy');
+    $status = [];
 
-    /*
     // Get annopys in course that should be resetted.
-    $sql = "SELECT m.id
-                FROM {annopy} m
-                WHERE m.course = ?";
+    $sql = "SELECT a.id
+                FROM {annopy} a
+                WHERE a.course = ?";
 
-    $params = array(
-        $data->courseid
-    );
+    $params = [$data->courseid];
 
     $annopys = $DB->get_records_sql($sql, $params);
 
-    // Delete entries and their annotations, files and ratings.
-    if (!empty($data->reset_annopy_all)) {
+    // Delete all annotations.
+    if (!empty($data->reset_annopy_annotations)) {
+        $DB->delete_records_select('annopy_annotations', "annopy IN ($sql)", $params);
+
+        $status[] = [
+            'component' => $modulenameplural,
+            'item' => get_string('annotationsdeleted', 'mod_annopy'),
+            'error' => false,
+        ];
+    }
+
+    // Delete submission and associated files.
+    if (!empty($data->reset_annopy_all) || !empty($data->reset_annopy_submissionandfiles)) {
 
         $fs = get_file_storage();
-
-        // Get ratings manager.
-        $rm = new rating_manager();
-        $ratingdeloptions = new stdClass;
-        $ratingdeloptions->component = 'mod_annopy';
-        $ratingdeloptions->ratingarea = 'entry';
 
         foreach ($annopys as $annopyid => $unused) {
             if (!$cm = get_coursemodule_from_instance('annopy', $annopyid)) {
                 continue;
             }
 
-            // Remove files.
+            // Remove associated files.
             $context = context_module::instance($cm->id);
-            $fs->delete_area_files($context->id, 'mod_annopy', 'entry');
-            $fs->delete_area_files($context->id, 'mod_annopy', 'feedback');
-
-            // Remove ratings.
-            $ratingdeloptions->contextid = $context->id;
-            $rm->delete_ratings($ratingdeloptions);
+            $fs->delete_area_files($context->id, 'mod_annopy', 'submission');
         }
 
-        // Remove all grades from gradebook (if that is not already done by the reset_gradebook_grades).
-        if (empty($data->reset_gradebook_grades)) {
-            annopy_reset_gradebook($data->courseid);
-        }
-
-        // Delete the annotations of all entries.
+        // Delete annotations.
         $DB->delete_records_select('annopy_annotations', "annopy IN ($sql)", $params);
 
-        // Delete all entries.
-        $DB->delete_records_select('annopy_entries', "annopy IN ($sql)", $params);
+        // Delete submission.
+        $DB->delete_records_select('annopy_submissions', "annopy IN ($sql)", $params);
 
-        $status[] = array(
-            'component' => $modulename,
-            'item' => get_string('alluserdatadeleted', 'annopy'),
-            'error' => false
-        );
-    } */
+        $status[] = [
+            'component' => $modulenameplural,
+            'item' => get_string('submissionandfilesdeleted', 'mod_annopy'),
+            'error' => false,
+        ];
+    }
+
+    // Delete annotation types.
+    if (!empty($data->reset_annopy_all) || !empty($data->reset_annopy_annotationtypes)) {
+        $DB->delete_records_select('annopy_annotationtypes', "annopy IN ($sql)", $params);
+
+        $status[] = [
+            'component' => $modulenameplural,
+            'item' => get_string('annotationtypesdeleted', 'mod_annopy'),
+            'error' => false,
+        ];
+    }
 
     // Updating dates - shift may be negative too.
     if ($data->timeshift) {
         // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
         // See MDL-9367.
-        shift_course_mod_dates('annopy', array('assesstimestart', 'assesstimefinish'), $data->timeshift, $data->courseid);
-        $status[] = array('component' => $componentstr, 'item' => get_string('datechanged'), 'error' => false);
+        shift_course_mod_dates('annopy', [], $data->timeshift, $data->courseid);
+        $status[] = [
+            'component' => $modulenameplural,
+            'item' => get_string('datechanged'),
+            'error' => false,
+        ];
     }
 
     return $status;
-}
-
-
-/**
- * Removes all grades in the annopy gradebook
- *
- * @param int $courseid
- */
-function annopy_reset_gradebook($courseid) {
-    /* global $DB;
-
-    $params = array($courseid);
-
-    $sql = "SELECT ma.*, cm.idnumber as cmidnumber, ma.course as courseid
-              FROM {annopy} ma, {course_modules} cm, {modules} m
-             WHERE m.name='annopy' AND m.id=cm.module AND cm.instance=ma.id AND ma.course=?";
-
-    if ($annopys = $DB->get_records_sql($sql, $params)) {
-        foreach ($annopys as $annopy) {
-            annopy_grade_item_update($annopy, 'reset');
-        }
-    } */
-}
-
-/**
- * Get annopy grades for a user (custom function used by annopy_update_grades).
- *
- * @param object $annopy If null, all annopys
- * @param int $userid If false all users
- * @return object $grades
- */
-function annopy_get_user_grades($annopy, $userid = 0) {
-    global $CFG;
-
-    require_once($CFG->dirroot . '/rating/lib.php');
-
-    $ratingoptions = new stdClass();
-    $ratingoptions->component = 'mod_annopy';
-    $ratingoptions->ratingarea = 'entry';
-    $ratingoptions->modulename = 'annopy';
-    $ratingoptions->moduleid = $annopy->id;
-    $ratingoptions->userid = $userid;
-    $ratingoptions->aggregationmethod = $annopy->assessed;
-    $ratingoptions->scaleid = $annopy->scale;
-    $ratingoptions->itemtable = 'annopy_entries';
-    $ratingoptions->itemtableusercolumn = 'userid';
-
-    $rm = new rating_manager();
-
-    return $rm->get_user_grades($ratingoptions);
-}
-
-/**
- * Update grades in the annopy gradebook.
- *
- * Needed by {@see grade_update_mod_grades()}.
- *
- * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
- * @param int $userid Update grade of specific user only, 0 means all participants.
- */
-function annopy_update_grades($moduleinstance, $userid = 0) {
-    global $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
-
-    $cm = get_coursemodule_from_instance('annopy', $moduleinstance->id);
-    $moduleinstance->cmidnumber = $cm->idnumber;
-
-    if (!$moduleinstance->assessed) {
-        annopy_grade_item_update($moduleinstance);
-    } else if ($grades = annopy_get_user_grades($moduleinstance, $userid)) {
-        annopy_grade_item_update($moduleinstance, $grades);
-    } else if ($userid && $nullifnone) {
-        $grade = new stdClass();
-        $grade->userid = $userid;
-        $grade->rawgrade = null;
-        annopy_grade_item_update($moduleinstance, $grade);
-    } else {
-        annopy_grade_item_update($moduleinstance);
-    }
-}
-
-/**
- * Creates or updates grade item for given annopy.
- *
- * Needed by {@see grade_update_mod_grades()}.
- *
- * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
- * @param array $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
- * @return void.
- */
-function annopy_grade_item_update($moduleinstance, $grades = null) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    $params = array(
-        'itemname' => $annopy->name,
-        'idnumber' => $annopy->cmidnumber
-    );
-
-    if (! $annopy->assessed || $annopy->scale == 0) {
-        $params['gradetype'] = GRADE_TYPE_NONE;
-    } else if ($annopy->scale > 0) {
-        $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax'] = $annopy->scale;
-        $params['grademin'] = 0;
-    } else if ($annopy->scale < 0) {
-        $params['gradetype'] = GRADE_TYPE_SCALE;
-        $params['scaleid'] = - $annopy->scale;
-    }
-
-    if ($grades === 'reset') {
-        $params['reset'] = true;
-        $grades = null;
-    }
-
-    return grade_update('mod/annopy', $annopy->course, 'mod', 'annopy', $annopy->id, 0, $grades, $params);
-}
-
-/**
- * Delete grade item for given module instance.
- *
- * @param stdClass $moduleinstance Instance object.
- * @return grade_item.
- */
-function annopy_grade_item_delete($moduleinstance) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    return grade_update('/mod/annopy', $moduleinstance->course, 'mod', 'annopy',
-                        $moduleinstance->id, 0, null, array('deleted' => 1));
-}
-
-/**
- * Checks if scale is being used by any instance of mod_annopy.
- *
- * This is used to find out if scale used anywhere.
- *
- * @param int $scaleid ID of the scale.
- * @return bool True if the scale is used by any mod_annopy instance.
- */
-function annopy_scale_used_anywhere($scaleid) {
-    global $DB;
-
-    if (empty($scaleid)) {
-        return false;
-    }
-
-    return $DB->record_exists_select('annopy', "scale = ? and assessed > 0", [$scaleid * -1]);
 }
 
 /**
@@ -824,9 +619,7 @@ function annopy_scale_used_anywhere($scaleid) {
  * @return string[]
  */
 function annopy_get_file_areas($course, $cm, $context) {
-    return array(
-        'entry' => get_string('entry', 'mod_annopy'),
-    );
+    return ['submission' => get_string('submission', 'mod_annopy')];
 }
 
 /**
@@ -865,90 +658,31 @@ function annopy_get_file_info($browser, $areas, $course, $cm, $context, $fileare
  * @param array $options Additional options affecting the file serving.
  * @return bool false if file not found, does not return if found - just sends the file.
  */
-function annopy_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = array()) {
-    global $DB, $CFG;
+function annopy_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+    global $DB;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
-        send_file_not_found();
-    }
-
-    require_login($course, true, $cm);
-
-    if (! $course->visible && ! has_capability('moodle/course:viewhiddencourses', $context)) {
         return false;
     }
 
-    $areas = annopy_get_file_areas($course, $cm, $context);
+    require_course_login($course, true, $cm);
 
-    // Filearea must contain a real area.
-    if (!isset($areas[$filearea])) {
+    if (!$course->visible && !has_capability('moodle/course:viewhiddencourses', $context)) {
         return false;
     }
 
-    /* // Args[0] should be the entry id.
-    $entryid = intval(array_shift($args));
-    $entry = $DB->get_record('annopy_entries', array(
-        'id' => $entryid
-    ), 'id, userid', MUST_EXIST);
+    // Args[0] should be the submission id.
+    $submissionid = intval(array_shift($args));
 
-    $canmanage = has_capability('mod/annopy:manageentries', $context);
-    if (! $canmanage && ! has_capability('mod/annopy:addentries', $context)) {
-        // Even if it is your own entry.
-        return false;
-    }
-
-    // Students can only see their own entry.
-    if (! $canmanage && $USER->id !== $entry->userid) {
-        return false;
-    }
-
-    if ($filearea !== 'entry' && $filearea !== 'feedback') {
+    if ($filearea !== 'submission') {
         return false;
     }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/mod_annopy/$filearea/$entryid/$relativepath";
+    $fullpath = "/$context->id/mod_annopy/$filearea/$submissionid/$relativepath";
     $file = $fs->get_file_by_hash(sha1($fullpath));
 
     // Finally send the file.
-    send_stored_file($file, null, 0, $forcedownload, $options); */
-
-    send_file_not_found();
-}
-
-/**
- * Extends the global navigation tree by adding mod_annopy nodes if there is a relevant content.
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $annopynode An object representing the navigation tree node.
- * @param  stdClass $course Course object
- * @param  context_course $coursecontext Course context
- */
-function annopy_extend_navigation_course($annopynode, $course, $coursecontext) {
-    $modinfo = get_fast_modinfo($course); // Get mod_fast_modinfo from $course.
-    $index = 1; // Set index.
-    foreach ($modinfo->get_cms() as $cmid => $cm) { // Search existing course modules for this course.
-        if ($index == 1 && $cm->modname == "annopy" && $cm->uservisible && $cm->available) {
-            $url = new moodle_url("/mod/" . $cm->modname . "/index.php",
-                array("id" => $course->id)); // Set url for the link in the navigation node.
-            $node = navigation_node::create(get_string('viewallannopys', 'annopy'), $url,
-                navigation_node::TYPE_CUSTOM, null , null , null);
-            $annopynode->add_node($node);
-            $index++;
-        }
-    }
-}
-
-/**
- * Extends the settings navigation with the mod_annopy settings.
- *
- * This function is called when the context for the page is a mod_annopy module.
- * This is not called by AJAX so it is safe to rely on the $PAGE.
- *
- * @param settings_navigation $settingsnav
- * @param navigation_node $annopynode
- */
-function annopy_extend_settings_navigation($settingsnav, $annopynode = null) {
+    send_stored_file($file, null, 0, $forcedownload, $options);
 }

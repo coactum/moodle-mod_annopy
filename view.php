@@ -31,6 +31,12 @@ require_once(__DIR__.'/lib.php');
 // Course_module ID.
 $id = optional_param('id', 0, PARAM_INT);
 
+// Param with id of annotation that should be focused.
+$focusannotation = optional_param('focusannotation',  0, PARAM_INT); // ID of annotation.
+
+// The ID of the user whose annotations should be shown.
+$userid = optional_param('userid', 0, PARAM_INT);
+
 // Set the basic variables $course, $cm and $moduleinstance.
 if ($id) {
     [$course, $cm] = get_course_and_cm_from_cmid($id, 'annopy');
@@ -39,37 +45,47 @@ if ($id) {
     throw new moodle_exception('missingparameter');
 }
 
+if (!$cm) {
+    throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
+} else if (!$course) {
+    throw new moodle_exception(get_string('incorrectcourseid', 'annopy'));
+} else if (!$coursesections = $DB->get_record("course_sections", ["id" => $cm->section])) {
+    throw new moodle_exception(get_string('incorrectmodule', 'annopy'));
+}
+
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 
 // Trigger course_module_viewed event.
-$event = \mod_annopy\event\course_module_viewed::create(array(
+$event = \mod_annopy\event\course_module_viewed::create([
     'objectid' => $moduleinstance->id,
-    'context' => $context
-));
+    'context' => $context,
+]);
 
 $event->add_record_snapshot('course_modules', $cm);
 $event->add_record_snapshot('course', $course);
 $event->add_record_snapshot('annopy', $moduleinstance);
 $event->trigger();
 
+// If user is participant only show his own annotations.
+if (!$userid && !has_capability('mod/annopy:viewparticipants', $context)) {
+    $userid = $USER->id;
+}
+
 // Get the name for this activity.
-$modulename = format_string($moduleinstance->name, true, array(
-    'context' => $context
-));
+$modulename = format_string($moduleinstance->name, true, [
+    'context' => $context,
+]);
 
 // Set $PAGE and completion.
-$PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/annopy/view.php', ['id' => $cm->id]);
 
 $PAGE->navbar->add(get_string("overview", "annopy"));
-/* $PAGE->navbar->add(get_string("overview", "annopy"), new moodle_url('/mod/annopy/view.php', array('id' => $cm->id)));
-if (true) {
-    $PAGE->navbar->add(get_string("overview", "annopy"));
-    $PAGE->set_url('/mod/annopy/view.php', array('id' => $cm->id));
-} */
 
-$PAGE->requires->js_call_amd('mod_annopy/view', 'init', array('cmid' => $cm->id));
+$PAGE->requires->js_call_amd('mod_annopy/annotations', 'init',
+    [ 'cmid' => $cm->id, 'canaddannotation' => has_capability('mod/annopy:addannotation', $context), 'myuserid' => $USER->id,
+    'focusannotation' => $focusannotation, 'userid' => $userid]);
 
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
@@ -85,63 +101,6 @@ if ($CFG->branch < 400) {
 
 echo $OUTPUT->header();
 
-// Check if new session should be saved.
-require_once($CFG->dirroot . '/mod/annopy/example_form.php');
-
-// Instantiate form.
-$mform = new mod_annopy_example_form(null, array('things' => 123));
-
-if ($fromform = $mform->get_data()) {
-
-    // In this case you process validated data. $mform->get_data() returns data posted in form.
-    if (isset($fromform->itemid)) { // Create new item.
-
-        $item = new stdClass();
-        $session->annopy = (int) $cm->instance;
-        $session->userid = (int) $USER->id;
-        $session->timecreated = time();
-        $session->property1 = $fromform->property1;
-
-        $newitemnid = $DB->insert_record('annopy_items', $item);
-
-        // Trigger annopy session login successfull event.
-        $event = \mod_annopy\event\thing_created::create(array(
-            'objectid' => $newitemnid,
-            'context' => $context
-        ));
-
-        $event->trigger();
-
-        $urlparams = array('id' => $id);
-        $redirecturl = new moodle_url('/mod/annopy/view.php', $urlparams);
-
-        // redirect($redirecturl, get_string('creationsuccessfull', 'mod_annopy'), null, notification::NOTIFY_SUCCESS);
-
-    } else { // Update item.
-        $thing = $DB->get_record('annopy_things', array('thing' => $cm->instance, 'id' => $fromform->itemid));
-
-        $thing->timemodified = time();
-        $thing->text = format_text($fromform->text, 2, array('para' => false));
-        $thing->type = $fromform->type;
-
-        $DB->update_record('annopy_things', $thing);
-
-        // Trigger annopy session login failed event.
-        $event = \mod_annopy\event\thing_updated::create(array(
-            'objectid' => (int) $USER->id,
-            'context' => $context
-        ));
-
-        $event->trigger();
-
-        $urlparams = array('id' => $id);
-        $redirecturl = new moodle_url('/mod/annopy/view.php', $urlparams);
-
-        redirect($redirecturl, get_string('thingupdated', 'mod_annopy'), null, notification::NOTIFY_ERROR);
-
-    }
-}
-
 if ($CFG->branch < 400) {
     echo $OUTPUT->heading($modulename);
 
@@ -150,32 +109,16 @@ if ($CFG->branch < 400) {
     }
 }
 
-// Get grading of current user when annopy is rated.
-/* if ($moduleinstance->assessed != 0) {
-    $ratingaggregationmode = helper::get_annopy_aggregation($moduleinstance->assessed) . ' ' .
-        get_string('forallmyentries', 'mod_annopy');
-    $gradinginfo = grade_get_grades($course->id, 'mod', 'annopy', $moduleinstance->id, $USER->id);
-    $userfinalgrade = $gradinginfo->items[0]->grades[$USER->id];
-    $currentuserrating = $userfinalgrade->str_long_grade;
-} else {
-    $ratingaggregationmode = false;
-    $currentuserrating = false;
-} */
-
 // Handle groups.
 echo groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/annopy/view.php?id=$id");
 
+// Get submission for the module.
+$submission = $DB->get_record('annopy_submissions', ['annopy' => $moduleinstance->id]);
+
 // Render and output page.
-$page = new annopy_view($cm);
+$page = new annopy_view($cm, $course, $context, $moduleinstance, $submission, $userid);
 
 echo $OUTPUT->render($page);
-
-$mform = new mod_annopy_example_form(new moodle_url('/mod/annopy/view.php', array('id' => $cm->id)));
-
-// Set default data.
-$mform->set_data(array('id' => $cm->id, 'username' => $USER->username));
-
-echo $mform->render();
 
 // Output footer.
 echo $OUTPUT->footer();
